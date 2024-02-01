@@ -115,32 +115,35 @@ const generateAccessAndRefreshTokens = async (userId) => {
 
 const registerUser = asyncHandler(async (req, res) => {
   // get user details from front-end
-  const { email, username, password } = req.body;
+  const { username, password, confirmPassword, bio } = req.body;
 
   // validations - not empty
   if (!username) {
     throw new ApiError(400, "Username is required");
   }
 
-  if (!password) {
+  if (!password ) {
     throw new ApiError(400, "Password is required");
   }
 
+  // if (password === confirmPassword) {
+  //   throw new ApiError(400, "Password's are not same");
+  // }
+
   // check if user already exists : username
   const existingUser = await User.findOne({ username });
-  const existingUserEmail = await User.findOne({ email });
   if (existingUser) {
     throw new ApiError(400, "Username Already exists");
   }
 
-  if (existingUserEmail) {
-    throw new ApiError(400, "Email Already exists");
-  }
+  const avatarLocalPath = req.files?.avatar[0]?.path;
   const verificationToken = crypto.randomBytes(20).toString("hex");
-  // create user object - create entry in DB
+  const avatar = await uploadImageOnCloudinary(avatarLocalPath);
   const user = await User.create({
     username,
     password,
+    bio,
+    avatar: avatar?.url,
     verificationToken,
   });
 
@@ -193,10 +196,6 @@ const loginUser = asyncHandler(async (req, res) => {
   const user = await User.findOne({ username });
   if (!user) {
     throw new ApiError(404, "User not exists");
-  }
-
-  if (!user.isVerified) {
-    throw new ApiError(401, "User account is not verified");
   }
 
   const isPasswordCorrect = await user.isPasswordCorrect(password);
@@ -300,34 +299,6 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "Account Details updated successfully"));
 });
 
-const updateUserAvatar = asyncHandler(async (req, res) => {
-  const avatarLocalPath = req.files?.path;
-  if (!avatarLocalPath) {
-    throw new ApiError(400, "Avatar is required");
-  }
-
-  const avatar = await updateUserAvatar(avatarLocalPath);
-  if (!avatar.url) {
-    throw new ApiError("Error while uploading image");
-  }
-
-  const user = await User.findOneAndUpdate(
-    req.user?._id,
-    {
-      $set: {
-        avatar: avatar?.url,
-      },
-    },
-    {
-      new: true,
-    }
-  ).select("-password");
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, user, "Avatar updated successfully"));
-});
-
 const getCurrentUser = asyncHandler(async (req, res) => {
   return res
     .status(200)
@@ -425,13 +396,60 @@ const unFollowUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "User is not being followed");
   }
 
-  req.user.following = req.user.following.filter(id => id.toString() !== userIdToUnFollow.toString());
+  req.user.following = req.user.following.filter(
+    (id) => id.toString() !== userIdToUnFollow.toString()
+  );
   await req.user.save();
 
-  userToUnFollow.followers = userToUnFollow.followers.filter(id => id.toString() !== req.user._id.toString());
+  userToUnFollow.followers = userToUnFollow.followers.filter(
+    (id) => id.toString() !== req.user._id.toString()
+  );
   await userToUnFollow.save();
 
-  res.status(200).json(new ApiResponse(200, null, "User unFollowed successfully"));
+  res
+    .status(200)
+    .json(new ApiResponse(200, null, "User unFollowed successfully"));
+});
+
+const updateUserAvatar = asyncHandler(async (req, res) => {
+  const avatarLocalPath = req.file?.path;
+
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar file is required");
+  }
+
+  const avatar = await uploadImageOnCloudinary(avatarLocalPath);
+  if (!avatar.url) {
+    throw new ApiError(400, "Error while uploading avatar");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        avatar: avatar?.url,
+      },
+    },
+    { new: true }
+  ).select("-password");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "Avatar Image Updated"));
+});
+
+const allUsers = asyncHandler(async (req, res) => {
+  console.log("called");
+  console.log(req.query.search);
+  const userName = req.query.search;
+
+  const users = await User.find({
+    username: { $regex: new RegExp(userName, "i") },
+  }).select("username avatar");
+  console.log(users);
+  return res
+    .status(200)
+    .json(new ApiResponse(200, users, "User fetched successfully"));
 });
 
 export {
@@ -446,5 +464,6 @@ export {
   deleteUserAccount,
   verifyUser,
   followUser,
-  unFollowUser
+  unFollowUser,
+  allUsers,
 };

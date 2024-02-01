@@ -79,22 +79,26 @@ const createGroupChat = asyncHandler(async (req, res) => {
     throw new ApiError(400, "All fields are required");
   }
 
-  console.log(req.body.users);
-  let users = req.body.users;
-  console.log(users);
-  if (users.length < 2) {
-    throw new ApiError(
-      400,
-      "More than 2 users are required to form a group chat"
-    );
+  const users = Array.isArray(req.body.users) ? [...new Set(req.body.users)] : [];
+  const userId = req.user._id.toString();
+
+  if (!users.includes(userId)) {
+    users.push(userId);
   }
 
-  users.push(req.user);
+  if (users.length < 2) {
+    throw new ApiError(400, "More than 2 users are required to form a group chat");
+  }
+
+  // Ensure the group only contains unique user IDs
+  const uniqueUsers = [...new Set(users)];
+
+  console.log(req.user);
 
   const groupChat = await Chat.create({
     chatName: req.body.name,
     isGroupChat: true,
-    users: users,
+    users: uniqueUsers,
     groupAdmin: req.user,
   });
 
@@ -108,6 +112,8 @@ const createGroupChat = asyncHandler(async (req, res) => {
       new ApiResponse(200, fullGroupChat, "GroupChat created successfully")
     );
 });
+
+
 
 const renameGroup = asyncHandler(async (req, res) => {
   const { chatId, chatName } = req.body;
@@ -184,9 +190,7 @@ const removeFromGroup = asyncHandler(async (req, res) => {
       "Only the group admin can remove users from the group"
     );
   }
-  if (userId.toString() === chat.groupAdmin.toString()) {
-    throw new ApiError(400, "Cannot remove the group admin from the group");
-  }
+ 
 
   const removed = await Chat.findByIdAndUpdate(
     chatId,

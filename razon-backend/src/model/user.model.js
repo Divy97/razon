@@ -20,8 +20,10 @@ const userSchema = new mongoose.Schema(
     verificationToken: {
       type: String,
     },
-    refreshToken: {},
-    universityTag: {
+    refreshToken: {
+      type: String
+    },
+    tag: {
       type: String,
     },
     isVerified: {

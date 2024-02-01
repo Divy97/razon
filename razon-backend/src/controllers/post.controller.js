@@ -5,6 +5,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import { Post } from "../model/post.model.js";
 import { Comment, Reply } from "../model/reply.model.js";
 import { User } from "../model/user.model.js";
+import uploadImageOnCloudinary from "../utils/cloudinary.js";
 
 const createPost = asyncHandler(async (req, res) => {
   const { title, content, tags } = req.body;
@@ -20,10 +21,14 @@ const createPost = asyncHandler(async (req, res) => {
     throw new Error("Content is Required");
   }
 
+  const imageLocalPath = req.files?.avatar[0]?.path;
+  const postImage = await uploadImageOnCloudinary(imageLocalPath);
+  console.log(postImage);
   const createPost = await Post.create({
     title,
     content,
     user: req.user._id,
+    image: "data:image/jpeg;base64,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",
     tags: tags || [],
   });
 
@@ -31,9 +36,9 @@ const createPost = asyncHandler(async (req, res) => {
     throw new Error("Something went wrong while creating a post");
   }
 
-  const post = await Post.findById(createPost._id);
-
-  res.status(200).json(new ApiResponse(200, post, "Post created successfully"));
+  const post = await Post.findById(createPost._id).populate('user', 'username'); 
+  console.log({ ...post.toObject(), username: req.user.username });
+  res.status(200).json(new ApiResponse(200, { ...post.toObject(), username: req.user.username }, "Post created successfully"));
 });
 
 const upvote = asyncHandler(async (req, res) => {
@@ -388,7 +393,7 @@ const getPostDetails = asyncHandler(async (req, res) => {
 });
 
 const getAllPosts = asyncHandler(async (req, res) => {
-  const posts = await Post.find();
+  const posts = await Post.find().populate('user', 'username');  ;
 
   if (!posts) {
     throw new ApiError(404, "No posts found");
