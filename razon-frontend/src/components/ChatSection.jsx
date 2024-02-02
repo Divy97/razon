@@ -475,11 +475,11 @@ const ChatSection = () => {
                     return (
                       !chat.isGroupChat && (
                         <button
-                          className={`w-[15vw] p-3 dark:text-white rounded-full flex items-center gap-5 border-2 bg-outline mb-2 hover:bg-white hover:dark:text-black hover:border-black hover:cursor-pointer
+                          className={`w-[15vw] p-3 rounded-full flex items-center gap-5 border-2 bg-outline mb-2 hover:cursor-pointer
                             ${
                               selectedChat?._id === chat?._id
-                                ? "bg-white dark:text-black"
-                                : ""
+                                ? "dark:bg-white dark:text-black bg-black text-white"
+                                : "dark:text-white text-black"
                             }
                           `}
                           key={chat?._id}
@@ -514,7 +514,7 @@ const ChatSection = () => {
                 </div>
               )}
             </div>
-            <div className={`w-[70vw] h-[75vh] border-2`}>
+            <div className={`w-[70vw] h-[75vh] flex items-end border-2`}>
               <ChatBox fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
             </div>
           </TabsContent>

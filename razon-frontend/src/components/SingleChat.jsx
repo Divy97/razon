@@ -1,3 +1,6 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
+import { useEffect, useState } from "react";
 import { ChatState } from "@/context/ChatProvider";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
@@ -10,12 +13,14 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { Button } from "./ui/button";
-import { useToast } from "@/components/ui/use-toast";
+import { Badge } from "./ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 
 import { Settings, X } from "lucide-react";
-import { useState } from "react";
-import { Badge } from "./ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { useToast } from "@/components/ui/use-toast";
+import ScrollableChat from "./ScrollableChat";
+
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const { toast } = useToast();
 
@@ -33,7 +38,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [loading, setLoading] = useState(false);
   const [renameLoading, setRenameLoading] = useState(false);
 
-  const handleDelete = () => {};
   const handleRename = async () => {
     if (!groupChatName) {
       return;
@@ -221,9 +225,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         .then((response) => response.text())
         .then((result) => {
           console.log("userToRemove?._id", userToRemove?._id);
-          console.log("JSON.parse(user)?._id", JSON.parse(user)?._id === userToRemove?._id);
-          userToRemove?._id === JSON.parse(user)?._id ? setSelectedChat() : setSelectedChat(result.data);
+          console.log(
+            "JSON.parse(user)?._id",
+            JSON.parse(user)?._id === userToRemove?._id
+          );
+          userToRemove?._id === JSON.parse(user)?._id
+            ? setSelectedChat()
+            : setSelectedChat(result.data);
           setFetchAgain(!fetchAgain);
+          fetchMessages();
           setLoading(false);
         })
         .catch((error) => console.log("error", error));
@@ -235,6 +245,96 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       });
     }
   };
+
+  // messages
+  const [messages, setMessages] = useState([]);
+  const [messageLoading, setMessageLoading] = useState(false);
+  const [newMessage, setNewMessage] = useState();
+
+  const fetchMessages = async () => {
+    if (!selectedChat) return;
+    try {
+      setMessageLoading(true);
+      let myHeaders = new Headers();
+      myHeaders.append(
+        "Authorization",
+        "Bearer " +
+          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWI1ZTkwMzcwMWY3NTVkZTg2ZThiMmMiLCJ1c2VybmFtZSI6InR3byIsImlhdCI6MTcwNjc5NzIzNCwiZXhwIjoxNzA2ODgzNjM0fQ.2PUUbLn7okQ7kkN5WimBzPW1I2KuW_yPESzHSqJRdHM"
+      );
+      let requestOptions = {
+        method: "GET",
+        headers: myHeaders,
+        redirect: "follow",
+      };
+
+      fetch(
+        `http://localhost:8080/api/v1/message/${selectedChat?._id}`,
+        requestOptions
+      )
+        .then((response) => response.json())
+        .then((result) => {
+          console.log(messages);
+          setMessages(result.data);
+          setMessageLoading(false);
+          console.log(result);
+        })
+        .catch((error) => console.log("error", error));
+    } catch (error) {
+      toast({
+        title: "Oops!",
+        description: "Failed to load messages!",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const sendMessage = async (e) => {
+    if (e.key === "Enter" && newMessage) {
+      try {
+        let myHeaders = new Headers();
+        myHeaders.append("Content-Type", "application/json");
+        myHeaders.append(
+          "Authorization",
+          "Bearer " +
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWI1ZTkwMzcwMWY3NTVkZTg2ZThiMmMiLCJ1c2VybmFtZSI6InR3byIsImlhdCI6MTcwNjc5NzIzNCwiZXhwIjoxNzA2ODgzNjM0fQ.2PUUbLn7okQ7kkN5WimBzPW1I2KuW_yPESzHSqJRdHM"
+        );
+        let raw = JSON.stringify({
+          content: newMessage,
+          chatId: selectedChat?._id,
+        });
+
+        let requestOptions = {
+          method: "POST",
+          headers: myHeaders,
+          body: raw,
+          redirect: "follow",
+        };
+
+        fetch("http://localhost:8080/api/v1/message", requestOptions)
+          .then((response) => response.json())
+          .then((result) => {
+            setNewMessage("");
+            setMessages([...messages, result.data]);
+            console.log(result.data);
+          })
+          .catch((error) => console.log("error", error));
+      } catch (error) {
+        toast({
+          title: "Oops!",
+          description: "Failed to send message!",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const typingHandler = (e) => {
+    setNewMessage(e.target.value);
+  };
+
+  useEffect(() => {
+    fetchMessages();
+  }, [selectedChat]);
 
   return (
     <>
@@ -335,7 +435,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                     <DialogFooter>
                       <Button
                         type="submit"
-                        variant="destructive"
+                        letiant="destructive"
                         onClick={() => handleRemove(JSON.parse(user))}
                       >
                         Leave Group
@@ -346,7 +446,20 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               </div>
             )}
           </div>
-          <div className="flex flex-col justify-end p-3 bg-#E8E8E8 w-[100%] h-[100%] border-2 border-black dark:border-white overflow-hidden mt-2"></div>
+          <div className="flex flex-col justify-end p-3 bg-#E8E8E8 w-[100%] h-[100%] border-2 border-black dark:border-white mt-2">
+            {messageLoading ? (
+              <Skeleton className="w-[40px] h-[40px] rounded-full m-auto" />
+            ) : (
+              <ScrollableChat messages={messages} />
+            )}
+            <Input
+              type="email"
+              placeholder="Write Something..."
+              onKeyDown={sendMessage}
+              onChange={typingHandler}
+              value={newMessage}
+            />
+          </div>
         </>
       ) : (
         <h1 className="flex justify-center items-center text-3xl m-auto p-auto font-bold font-mono">
