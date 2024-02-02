@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { createContext, useContext, useEffect, useState } from "react";
 
 const ChatContext = createContext();
@@ -10,8 +11,14 @@ const ChatProvider = ({ children }) => {
     let userInfo = localStorage.getItem("userinfo");
     setUser(userInfo);
   }, []);
+  
+  const [token, setToken] = useState("");
+  useEffect(() => {
+    setToken(localStorage.getItem("token"));
+  },[])
+  
   return (
-    <ChatContext.Provider value={{ user, setUser, selectedChat, setSelectedChat, chats, setChats }}>
+    <ChatContext.Provider value={{ token, user, setUser, selectedChat, setSelectedChat, chats, setChats }}>
       {children}
     </ChatContext.Provider>
   );

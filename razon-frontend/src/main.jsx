@@ -6,11 +6,11 @@ import { ThemeProvider } from "@/components/theme-provider";
 import ChatProvider from "./context/ChatProvider.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <ChatProvider>
+  <ChatProvider>
+    <React.StrictMode>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <App />
       </ThemeProvider>
-    </ChatProvider>
-  </React.StrictMode>
+    </React.StrictMode>
+  </ChatProvider>
 );

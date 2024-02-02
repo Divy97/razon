@@ -42,17 +42,19 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "./ui/badge";
 
 const ChatSection = () => {
+  const { user, selectedChat, setSelectedChat, chats, setChats, token } = ChatState();
+  // ChatState
   const { toast } = useToast();
-
+ 
   // fetch again
   const [fetchAgain, setFetchAgain] = useState(false);
-
+  console.log("token", token);
   const fetchIndividualChats = () => {
     let myHeaders = new Headers();
     myHeaders.append(
       "Authorization",
       "Bearer " +
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWI1ZTkwMzcwMWY3NTVkZTg2ZThiMmMiLCJ1c2VybmFtZSI6InR3byIsImlhdCI6MTcwNjc5NzIzNCwiZXhwIjoxNzA2ODgzNjM0fQ.2PUUbLn7okQ7kkN5WimBzPW1I2KuW_yPESzHSqJRdHM"
+        token
     );
 
     let requestOptions = {
@@ -76,7 +78,6 @@ const ChatSection = () => {
 
   //search users
 
-  const { user, selectedChat, setSelectedChat, chats, setChats } = ChatState();
 
   const [search, setSearch] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -99,7 +100,7 @@ const ChatSection = () => {
         myHeaders.append(
           "Authorization",
           "Bearer " +
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWI1ZTkwMzcwMWY3NTVkZTg2ZThiMmMiLCJ1c2VybmFtZSI6InR3byIsImlhdCI6MTcwNjc5NzIzNCwiZXhwIjoxNzA2ODgzNjM0fQ.2PUUbLn7okQ7kkN5WimBzPW1I2KuW_yPESzHSqJRdHM"
+            token
         );
 
         let requestOptions = {
@@ -138,7 +139,7 @@ const ChatSection = () => {
       myHeaders.append(
         "Authorization",
         "Bearer " +
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWI1ZTkwMzcwMWY3NTVkZTg2ZThiMmMiLCJ1c2VybmFtZSI6InR3byIsImlhdCI6MTcwNjc5NzIzNCwiZXhwIjoxNzA2ODgzNjM0fQ.2PUUbLn7okQ7kkN5WimBzPW1I2KuW_yPESzHSqJRdHM"
+          token
       );
 
       let raw = JSON.stringify({
@@ -178,7 +179,7 @@ const ChatSection = () => {
       myHeaders.append(
         "Authorization",
         "Bearer " +
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWI1ZTkwMzcwMWY3NTVkZTg2ZThiMmMiLCJ1c2VybmFtZSI6InR3byIsImlhdCI6MTcwNjc5NzIzNCwiZXhwIjoxNzA2ODgzNjM0fQ.2PUUbLn7okQ7kkN5WimBzPW1I2KuW_yPESzHSqJRdHM"
+          token
       );
 
       let requestOptions = {
@@ -229,7 +230,7 @@ const ChatSection = () => {
         myHeaders.append(
           "Authorization",
           "Bearer " +
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWI1ZTkwMzcwMWY3NTVkZTg2ZThiMmMiLCJ1c2VybmFtZSI6InR3byIsImlhdCI6MTcwNjc5NzIzNCwiZXhwIjoxNzA2ODgzNjM0fQ.2PUUbLn7okQ7kkN5WimBzPW1I2KuW_yPESzHSqJRdHM"
+            token
         );
 
         let requestOptions = {
@@ -299,7 +300,7 @@ const ChatSection = () => {
       myHeaders.append(
         "Authorization",
         "Bearer " +
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWI1ZTkwMzcwMWY3NTVkZTg2ZThiMmMiLCJ1c2VybmFtZSI6InR3byIsImlhdCI6MTcwNjc5NzIzNCwiZXhwIjoxNzA2ODgzNjM0fQ.2PUUbLn7okQ7kkN5WimBzPW1I2KuW_yPESzHSqJRdHM"
+          token
       );
       let raw = JSON.stringify({
         name: groupChatName,

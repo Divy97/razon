@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { ChatState } from "@/context/ChatProvider";
 import SingleChat from "./SingleChat";
 

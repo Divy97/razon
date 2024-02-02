@@ -3,17 +3,13 @@ import MainSection from "./components/MainSection";
 
 import Navigation from "./components/Navigation";
 
-import {
-  Drawer,
-  DrawerContent,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { MessageCircleHeart } from "lucide-react";
 import { Toaster } from "@/components/ui/toaster";
 
-import './App.css';
-
+import "./App.css";
 const App = () => {
+
   return (
     <div className="h-[100vh]">
       <Toaster />

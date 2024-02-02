@@ -20,16 +20,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Settings, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import ScrollableChat from "./ScrollableChat";
+import io from "socket.io-client";
 
+const ENDPOINT = "http://localhost:8080";
+let socket, selectedChatCompare;
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
+  const { user, selectedChat, setSelectedChat, token } = ChatState();
   const { toast } = useToast();
 
   const getSender = (loggedUser, users) => {
-    return users[0]?._id != loggedUser?._id
+    return users[0]?._id === loggedUser?._id
       ? users[1]?.username
       : users[0]?.username;
   };
-  const { user, selectedChat, setSelectedChat } = ChatState();
 
   //change in group (add, remove, rename)
   const [groupChatName, setGroupChatName] = useState("");
@@ -46,11 +49,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     try {
       let myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
-      myHeaders.append(
-        "Authorization",
-        "Bearer " +
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWI1ZTkwMzcwMWY3NTVkZTg2ZThiMmMiLCJ1c2VybmFtZSI6InR3byIsImlhdCI6MTcwNjc5NzIzNCwiZXhwIjoxNzA2ODgzNjM0fQ.2PUUbLn7okQ7kkN5WimBzPW1I2KuW_yPESzHSqJRdHM"
-      );
+      myHeaders.append("Authorization", "Bearer " + token);
 
       let raw = JSON.stringify({
         chatId: selectedChat?._id,
@@ -99,11 +98,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       try {
         setLoading(true);
         let myHeaders = new Headers();
-        myHeaders.append(
-          "Authorization",
-          "Bearer " +
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWI1ZTkwMzcwMWY3NTVkZTg2ZThiMmMiLCJ1c2VybmFtZSI6InR3byIsImlhdCI6MTcwNjc5NzIzNCwiZXhwIjoxNzA2ODgzNjM0fQ.2PUUbLn7okQ7kkN5WimBzPW1I2KuW_yPESzHSqJRdHM"
-        );
+        myHeaders.append("Authorization", "Bearer " + token);
 
         let requestOptions = {
           method: "GET",
@@ -153,11 +148,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setLoading(true);
       let myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
-      myHeaders.append(
-        "Authorization",
-        "Bearer " +
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWI1ZTkwMzcwMWY3NTVkZTg2ZThiMmMiLCJ1c2VybmFtZSI6InR3byIsImlhdCI6MTcwNjc5NzIzNCwiZXhwIjoxNzA2ODgzNjM0fQ.2PUUbLn7okQ7kkN5WimBzPW1I2KuW_yPESzHSqJRdHM"
-      );
+      myHeaders.append("Authorization", "Bearer " + token);
 
       let raw = JSON.stringify({
         chatId: selectedChat?._id,
@@ -203,11 +194,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setLoading(true);
       let myHeaders = new Headers();
       myHeaders.append("Content-Type", "application/json");
-      myHeaders.append(
-        "Authorization",
-        "Bearer " +
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWI1ZTkwMzcwMWY3NTVkZTg2ZThiMmMiLCJ1c2VybmFtZSI6InR3byIsImlhdCI6MTcwNjc5NzIzNCwiZXhwIjoxNzA2ODgzNjM0fQ.2PUUbLn7okQ7kkN5WimBzPW1I2KuW_yPESzHSqJRdHM"
-      );
+      myHeaders.append("Authorization", "Bearer " + token);
 
       let raw = JSON.stringify({
         chatId: selectedChat?._id,
@@ -256,11 +243,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     try {
       setMessageLoading(true);
       let myHeaders = new Headers();
-      myHeaders.append(
-        "Authorization",
-        "Bearer " +
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWI1ZTkwMzcwMWY3NTVkZTg2ZThiMmMiLCJ1c2VybmFtZSI6InR3byIsImlhdCI6MTcwNjc5NzIzNCwiZXhwIjoxNzA2ODgzNjM0fQ.2PUUbLn7okQ7kkN5WimBzPW1I2KuW_yPESzHSqJRdHM"
-      );
+      myHeaders.append("Authorization", "Bearer " + token);
       let requestOptions = {
         method: "GET",
         headers: myHeaders,
@@ -276,6 +259,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           console.log(messages);
           setMessages(result.data);
           setMessageLoading(false);
+          socket.emit("join chat", selectedChat?._id);
           console.log(result);
         })
         .catch((error) => console.log("error", error));
@@ -289,15 +273,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   const sendMessage = async (e) => {
+
     if (e.key === "Enter" && newMessage) {
+      socket.emit("stop typing", selectedChat?._id)
       try {
         let myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
-        myHeaders.append(
-          "Authorization",
-          "Bearer " +
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWI1ZTkwMzcwMWY3NTVkZTg2ZThiMmMiLCJ1c2VybmFtZSI6InR3byIsImlhdCI6MTcwNjc5NzIzNCwiZXhwIjoxNzA2ODgzNjM0fQ.2PUUbLn7okQ7kkN5WimBzPW1I2KuW_yPESzHSqJRdHM"
-        );
+        myHeaders.append("Authorization", "Bearer " + token);
         let raw = JSON.stringify({
           content: newMessage,
           chatId: selectedChat?._id,
@@ -314,6 +296,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           .then((response) => response.json())
           .then((result) => {
             setNewMessage("");
+            socket.emit("new message", result.data);
             setMessages([...messages, result.data]);
             console.log(result.data);
           })
@@ -330,11 +313,61 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
+
+    // typing
+
+    if (!socketConnected) return;
+    if (!typing) {
+      setTyping(true);
+      socket.emit("typing", selectedChat?._id);
+    }
+
+    let lastTying = new Date().getTime();
+    let timer = 3000;
+    setTimeout(() => {
+      let timeNow = new Date().getTime();
+      let timeDifference = timeNow - lastTying;
+
+      if (timeDifference >= timer && typing) {
+        socket.emit("stop typing", selectedChat?._id);
+        setTyping(false);
+      }
+    }, timer);
   };
 
+  const [socketConnected, setSocketConnected] = useState(false);
   useEffect(() => {
     fetchMessages();
+    selectedChatCompare = selectedChat;
   }, [selectedChat]);
+
+  // typing functionality
+  const [typing, setTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+
+  useEffect(() => {
+    socket = io(ENDPOINT);
+    socket.emit("setup", JSON.parse(user));
+    socket.on("connected", () => {
+      setSocketConnected(true);
+    });
+    socket.on("typing", () => setIsTyping(true));
+    socket.on("stop typing", () => setIsTyping(false));
+  }, []);
+
+  useEffect(() => {
+    socket.on("message received", (newMessageReceived) => {
+      if (
+        !selectedChatCompare ||
+        selectedChatCompare._id !== newMessageReceived.chat._id
+      ) {
+        //give notification
+      } else {
+        setMessages([...messages, newMessageReceived]);
+      }
+    });
+  });
+
 
   return (
     <>
@@ -343,7 +376,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           <div className="bg-white w-[100%] text-black flex border-2 border-black">
             {!selectedChat.isGroupChat ? (
               <h1 className="text-3xl m-auto p-auto font-bold font-mono">
-                {getSender(user, selectedChat.users).toUpperCase()}
+                {getSender(JSON.parse(user), selectedChat.users).toUpperCase()}
               </h1>
             ) : (
               <div className="flex items-center justify-between w-[100%]">
@@ -446,12 +479,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               </div>
             )}
           </div>
-          <div className="flex flex-col justify-end p-3 bg-#E8E8E8 w-[100%] h-[100%] border-2 border-black dark:border-white mt-2">
+          <div className="flex flex-col justify-end p-3 bg-#E8E8E8 w-[100%] h-[100%] border-2 border-black     mt-2">
             {messageLoading ? (
               <Skeleton className="w-[40px] h-[40px] rounded-full m-auto" />
             ) : (
-              <ScrollableChat messages={messages} />
+              <ScrollableChat className="messages" messages={messages} />
             )}
+            {
+              isTyping ? <h1 className="text-white mb-1 ml-1">typing...</h1> : ""
+            }
             <Input
               type="email"
               placeholder="Write Something..."
