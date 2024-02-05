@@ -373,7 +373,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     <>
       {selectedChat ? (
         <>
-          <div className="bg-white w-[100%] text-black flex border-2 border-black">
+          <div className="bg-white w-[100%] text-black flex border-2 border-black ">
             {!selectedChat.isGroupChat ? (
               <h1 className="text-3xl m-auto p-auto font-bold font-mono">
                 {getSender(JSON.parse(user), selectedChat.users).toUpperCase()}
@@ -396,7 +396,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                         return (
                           <div
                             key={user?._id}
-                            className="flex gap-3 flex-row ml-2 flex-wrap"
+                            className="flex gap-3 flex-row ml-2 flex-wrap "
                           >
                             <Badge className="flex items-center justify-center gap-1 cursor-pointer">
                               <p className="text-md font-mono">
@@ -409,7 +409,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                       })}
                     </div>
                     <div className="grid gap-4 py-4">
-                      <Label htmlFor="name" className="text-left text-sm">
+                      <Label htmlFor="name" className="text-left text-sm ">
                         Group Name
                       </Label>
                       <div className="grid grid-cols-4 items-center gap-4">
@@ -457,7 +457,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                               <AvatarFallback>CN</AvatarFallback>
                             </Avatar>
                             <div>
-                              <p className="text-lg font-bold font-mono">
+                              <p className="text-lg font-bold font-mono ">
                                 {result?.username}
                               </p>
                             </div>
@@ -479,7 +479,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               </div>
             )}
           </div>
-          <div className="flex flex-col justify-end p-3 bg-#E8E8E8 w-[100%] h-[100%] border-2 border-black     mt-2">
+          <div className="flex flex-col justify-end p-3 bg-#E8E8E8 w-[100%] h-[100%] border-2 mt-2">
             {messageLoading ? (
               <Skeleton className="w-[40px] h-[40px] rounded-full m-auto" />
             ) : (

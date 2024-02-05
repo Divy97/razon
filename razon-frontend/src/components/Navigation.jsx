@@ -16,7 +16,7 @@ import {
 
 import { Input } from "@/components/ui/input";
 
-import { Link } from "@radix-ui/react-navigation-menu";
+import { Link } from "react-router-dom";
 import { ModeToggle } from "./mode-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -25,7 +25,7 @@ const Navigation = () => {
     <NavigationMenu className="max-w-100 flex items-center justify-around max-h-20 p-3">
       <NavigationMenuList>
         <NavigationMenuItem>
-          <Link href="/">
+          <Link to="/">
             <NavigationMenuLink>
               <h1 className="scroll-m-20 text-3xl font-extrabold tracking-tight lg:text-3xl">
                 Razón

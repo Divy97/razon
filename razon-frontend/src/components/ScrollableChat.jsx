@@ -51,7 +51,8 @@ const ScrollableChat = ({ messages }) => {
   };
 
   return (
-    <ScrollArea className="h-[58vh] w-[100%] flex items-end flex-col pr-2">
+    // <ScrollArea className="h-[58vh] w-[100%] flex items-end flex-col pr-2">
+    <ScrollArea className="h-auto flex flex-col pr-2 " style={{flexDirection:"column-reverse"}}>
       {messages &&
         messages.map((m, i) => (
           <div className="flex" key={m._id}>

@@ -47,7 +47,7 @@ io.on("connection", (socket) => {
   socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
 
   // socket.off("setup", () => {
-  //   console.log("USER DISCONNECTED");
+  //   console. log("USER DISCONNECTED");
   //   socket.leave(userData?._id);
   // });
 });

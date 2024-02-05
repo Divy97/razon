@@ -2,10 +2,15 @@ import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
-import { Post } from "../model/post.model.js";
-import { Comment, Reply } from "../model/reply.model.js";
+import { Post, Comment, Reply } from "../model/post.model.js";
+// import {  } from "../model/reply.model.js";
 import { User } from "../model/user.model.js";
 import uploadImageOnCloudinary from "../utils/cloudinary.js";
+
+const isUserUpvotedOrDownvoted = (user, upvotes, downvotes) => ({
+  alreadyUpvoted: upvotes.includes(user),
+  alreadyDownvoted: downvotes.includes(user),
+});
 
 const createPost = asyncHandler(async (req, res) => {
   const { title, content, tags } = req.body;
@@ -23,12 +28,10 @@ const createPost = asyncHandler(async (req, res) => {
 
   const imageLocalPath = req.files?.avatar[0]?.path;
   const postImage = await uploadImageOnCloudinary(imageLocalPath);
-  console.log(postImage);
   const createPost = await Post.create({
     title,
     content,
     user: req.user._id,
-    image: "data:image/jpeg;base64,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",
     tags: tags || [],
   });
 
@@ -36,9 +39,16 @@ const createPost = asyncHandler(async (req, res) => {
     throw new Error("Something went wrong while creating a post");
   }
 
-  const post = await Post.findById(createPost._id).populate('user', 'username'); 
-  console.log({ ...post.toObject(), username: req.user.username });
-  res.status(200).json(new ApiResponse(200, { ...post.toObject(), username: req.user.username }, "Post created successfully"));
+  const post = await Post.findById(createPost._id).populate("user", "username");
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { ...post.toObject(), username: req.user.username },
+        "Post created successfully"
+      )
+    );
 });
 
 const upvote = asyncHandler(async (req, res) => {
@@ -147,16 +157,21 @@ const createComment = asyncHandler(async (req, res) => {
     if (!post) {
       throw new ApiError(404, "Post not found");
     }
+
     const comment = new Comment({
       content,
       user: req.user?._id,
       post: post._id,
     });
+
     await comment.save();
     await Post.findByIdAndUpdate(post._id, {
       $push: { comments: comment._id },
     });
-    res.status(201).json(comment);
+
+    res
+      .status(201)
+      .json(new ApiResponse(201, comment, "Comment created successfully"));
   } catch (error) {
     console.error(error);
     throw new ApiError(500, "Error creating comment");
@@ -165,67 +180,10 @@ const createComment = asyncHandler(async (req, res) => {
 
 const upvoteComment = asyncHandler(async (req, res) => {
   const { comment_id } = req.query;
-
-  if (!comment_id) {
-    throw new ApiError(400, "Something went wrong, while upVoting comment");
-  }
-
-  const commentExists = await Comment.findById(comment_id);
-  if (!commentExists) {
-    throw new ApiError("CommentID is not valid");
-  }
-  const givenComment = await Comment.findByIdAndUpdate(
-    comment_id,
-    {
-      $inc: { upvotes: 1 },
-    },
-    {
-      new: true,
-    }
-  );
-
-  res
-    .status(200)
-    .json(new ApiResponse(200, givenComment, "Upvote registered successfully"));
-});
-
-const downvoteComment = asyncHandler(async (req, res) => {
-  const { comment_id } = req.query;
-
-  if (!comment_id) {
-    throw new ApiError(400, "Something went wrong, while upVoting comment");
-  }
-
-  const commentExists = await Comment.findById(comment_id);
-  if (!commentExists) {
-    throw new ApiError("CommentID is not valid");
-  }
-  const givenComment = await Comment.findByIdAndUpdate(
-    comment_id,
-    {
-      $inc: { downvotes: 1 },
-    },
-    {
-      new: true,
-    }
-  );
-
-  res
-    .status(200)
-    .json(new ApiResponse(200, givenComment, "Upvote registered successfully"));
-});
-
-const createReply = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
-  const { comment_id } = req.query;
-  const { content } = req.body;
 
-  if (!userId) {
-    throw new ApiError(400, "User not authorized");
-  }
-
-  if (!comment_id || !content) {
-    throw new ApiError(400, "Content and post ID are required");
+  if (!comment_id) {
+    throw new ApiError(400, "Comment ID is required");
   }
 
   const comment = await Comment.findById(comment_id);
@@ -233,48 +191,112 @@ const createReply = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Comment not found");
   }
 
-  const newReply = new Reply({
-    content,
-    user: req.user?._id,
-    comment: comment_id,
-  });
+  const { alreadyUpvoted, alreadyDownvoted } = isUserUpvotedOrDownvoted(
+    userId,
+    comment.upvotes,
+    comment.downvotes
+  );
 
-  await newReply.save();
-  await Comment.findByIdAndUpdate(comment_id, {
-    $push: { replies: newReply._id },
-  });
-  res.status(201).json(newReply);
+  if (alreadyUpvoted) {
+    const updatedComment = await Comment.findByIdAndUpdate(
+      comment_id,
+      { $pull: { upvotes: userId } },
+      { new: true }
+    );
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, updatedComment, "Upvote removed successfully")
+      );
+  } else {
+    const updatedComment = await Comment.findByIdAndUpdate(
+      comment_id,
+      { $push: { upvotes: userId }, $pull: { downvotes: userId } },
+      { new: true }
+    );
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, updatedComment, "Upvote registered successfully")
+      );
+  }
 });
 
-const createNestedReply = asyncHandler(async (req, res) => {
+const downvoteComment = asyncHandler(async (req, res) => {
+  const { comment_id } = req.query;
   const userId = req.user?._id;
-  const { reply_id } = req.query;
+
+  if (!comment_id) {
+    throw new ApiError(400, "Comment ID is required");
+  }
+
+  const comment = await Comment.findById(comment_id);
+  if (!comment) {
+    throw new ApiError(404, "Comment not found");
+  }
+
+  const { alreadyUpvoted, alreadyDownvoted } = isUserUpvotedOrDownvoted(
+    userId,
+    comment.upvotes,
+    comment.downvotes
+  );
+
+  if (alreadyDownvoted) {
+    const updatedComment = await Comment.findByIdAndUpdate(
+      comment_id,
+      { $pull: { downvotes: userId } },
+      { new: true }
+    );
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, updatedComment, "Downvote removed successfully")
+      );
+  } else {
+    const updatedComment = await Comment.findByIdAndUpdate(
+      comment_id,
+      { $push: { downvotes: userId }, $pull: { upvotes: userId } },
+      { new: true }
+    );
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, updatedComment, "Downvote registered successfully")
+      );
+  }
+});
+
+const createReply = asyncHandler(async (req, res) => {
   const { content } = req.body;
+  const { commentId } = req.params;
 
-  if (!userId) {
-    throw new ApiError(400, "User not authorized");
+  if (!content || !commentId) {
+    throw new ApiError(400, "Content and comment ID are required");
   }
 
-  if (!reply_id || !content) {
-    throw new ApiError(400, "Content and reply ID are required");
+  try {
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      throw new ApiError(404, "Comment not found");
+    }
+
+    const reply = new Reply({
+      content,
+      user: req.user?._id,
+    });
+
+    await reply.save();
+    await Comment.findByIdAndUpdate(comment._id, {
+      $push: { replies: reply._id },
+    });
+
+    res
+      .status(201)
+      .json(new ApiResponse(201, reply, "Reply created successfully"));
+  } catch (error) {
+    console.error(error);
+    throw new ApiError(500, "Error creating reply");
   }
-
-  const reply = await Reply.findById(reply_id);
-  if (!reply) {
-    throw new ApiError(404, "Reply not found");
-  }
-
-  const newNestedReply = new Reply({
-    content,
-    user: req.user?._id,
-    comment: reply_id,
-  });
-
-  await newNestedReply.save();
-  await Reply.findByIdAndUpdate(reply_id, {
-    $push: { replies: newNestedReply._id },
-  });
-  res.status(201).json(newNestedReply);
 });
 
 const upvoteReply = asyncHandler(async (req, res) => {
@@ -282,7 +304,7 @@ const upvoteReply = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
 
   if (!reply_id) {
-    throw new ApiError(400, "ReplyID is required");
+    throw new ApiError(400, "Reply ID is required");
   }
 
   const reply = await Reply.findById(reply_id);
@@ -290,8 +312,11 @@ const upvoteReply = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Reply not found");
   }
 
-  const alreadyUpvoted = reply.upvotes.includes(userId);
-  const alreadyDownvoted = reply.downvotes.includes(userId);
+  const { alreadyUpvoted, alreadyDownvoted } = isUserUpvotedOrDownvoted(
+    userId,
+    reply.upvotes,
+    reply.downvotes
+  );
 
   if (alreadyUpvoted) {
     const updatedReply = await Reply.findByIdAndUpdate(
@@ -299,19 +324,20 @@ const upvoteReply = asyncHandler(async (req, res) => {
       { $pull: { upvotes: userId } },
       { new: true }
     );
-
-    res.status(200).json(new ApiResponse(200, updatedReply, "Upvote removed successfully"));
+    res
+      .status(200)
+      .json(new ApiResponse(200, updatedReply, "Upvote removed successfully"));
   } else {
     const updatedReply = await Reply.findByIdAndUpdate(
       reply_id,
-      {
-        $push: { upvotes: userId },
-        $pull: { downvotes: userId },
-      },
+      { $push: { upvotes: userId }, $pull: { downvotes: userId } },
       { new: true }
     );
-
-    res.status(200).json(new ApiResponse(200, updatedReply, "Upvote registered successfully"));
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, updatedReply, "Upvote registered successfully")
+      );
   }
 });
 
@@ -320,7 +346,7 @@ const downvoteReply = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
 
   if (!reply_id) {
-    throw new ApiError(400, "ReplyID is required");
+    throw new ApiError(400, "Reply ID is required");
   }
 
   const reply = await Reply.findById(reply_id);
@@ -328,8 +354,11 @@ const downvoteReply = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Reply not found");
   }
 
-  const alreadyUpvoted = reply.upvotes.includes(userId);
-  const alreadyDownvoted = reply.downvotes.includes(userId);
+  const { alreadyUpvoted, alreadyDownvoted } = isUserUpvotedOrDownvoted(
+    userId,
+    reply.upvotes,
+    reply.downvotes
+  );
 
   if (alreadyDownvoted) {
     const updatedReply = await Reply.findByIdAndUpdate(
@@ -337,128 +366,287 @@ const downvoteReply = asyncHandler(async (req, res) => {
       { $pull: { downvotes: userId } },
       { new: true }
     );
-
-    res.status(200).json(new ApiResponse(200, updatedReply, "Downvote removed successfully"));
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, updatedReply, "Downvote removed successfully")
+      );
   } else {
     const updatedReply = await Reply.findByIdAndUpdate(
       reply_id,
-      {
-        $push: { downvotes: userId },
-        $pull: { upvotes: userId },
-      },
+      { $push: { downvotes: userId }, $pull: { upvotes: userId } },
       { new: true }
     );
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, updatedReply, "Downvote registered successfully")
+      );
+  }
+});
 
-    res.status(200).json(new ApiResponse(200, updatedReply, "Downvote registered successfully"));
+const createNestedReply = asyncHandler(async (req, res) => {
+  const { content } = req.body;
+  const { reply_id } = req.query;
+
+  if (!content || !reply_id) {
+    throw new ApiError(400, "Content and reply ID are required");
+  }
+
+  try {
+    const parentReply = await Reply.findById(reply_id);
+    if (!parentReply) {
+      throw new ApiError(404, "Parent reply not found");
+    }
+
+    const nestedReply = new Reply({
+      content,
+      user: req.user?._id,
+      parentReply: reply_id
+    });
+
+    await nestedReply.save();
+    await Reply.findByIdAndUpdate(parentReply._id, {
+      $push: { replies: nestedReply._id },
+    });
+
+    res
+      .status(201)
+      .json(
+        new ApiResponse(201, nestedReply, "Nested reply created successfully")
+      );
+  } catch (error) {
+    console.error(error);
+    throw new ApiError(500, "Error creating nested reply");
+  }
+});
+
+const upvoteNestedReply = asyncHandler(async (req, res) => {
+  const { nested_reply_id } = req.query;
+  const userId = req.user?._id;
+
+  if (!nested_reply_id) {
+    throw new ApiError(400, "Nested reply ID is required");
+  }
+
+  const nestedReply = await Reply.findById(nested_reply_id);
+  if (!nestedReply) {
+    throw new ApiError(404, "Nested reply not found");
+  }
+
+  const { alreadyUpvoted, alreadyDownvoted } = isUserUpvotedOrDownvoted(
+    userId,
+    nestedReply.upvotes,
+    nestedReply.downvotes
+  );
+
+  if (alreadyUpvoted) {
+    const updatedNestedReply = await Reply.findByIdAndUpdate(
+      nested_reply_id,
+      { $pull: { upvotes: userId } },
+      { new: true }
+    );
+    res
+      .status(200)
+      .json(
+        new ApiResponse(200, updatedNestedReply, "Upvote removed successfully")
+      );
+  } else {
+    const updatedNestedReply = await Reply.findByIdAndUpdate(
+      nested_reply_id,
+      { $push: { upvotes: userId }, $pull: { downvotes: userId } },
+      { new: true }
+    );
+    res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          updatedNestedReply,
+          "Upvote registered successfully"
+        )
+      );
+  }
+});
+
+const downvoteNestedReply = asyncHandler(async (req, res) => {
+  const { nested_reply_id } = req.query;
+  const userId = req.user?._id;
+
+  if (!nested_reply_id) {
+    throw new ApiError(400, "Nested reply ID is required");
+  }
+
+  const nestedReply = await Reply.findById(nested_reply_id);
+  if (!nestedReply) {
+    throw new ApiError(404, "Nested reply not found");
+  }
+
+  const { alreadyUpvoted, alreadyDownvoted } = isUserUpvotedOrDownvoted(
+    userId,
+    nestedReply.upvotes,
+    nestedReply.downvotes
+  );
+
+  if (alreadyDownvoted) {
+    const updatedNestedReply = await Reply.findByIdAndUpdate(
+      nested_reply_id,
+      { $pull: { downvotes: userId } },
+      { new: true }
+    );
+    res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          updatedNestedReply,
+          "Downvote removed successfully"
+        )
+      );
+  } else {
+    const updatedNestedReply = await Reply.findByIdAndUpdate(
+      nested_reply_id,
+      { $push: { downvotes: userId }, $pull: { upvotes: userId } },
+      { new: true }
+    );
+    res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          updatedNestedReply,
+          "Downvote registered successfully"
+        )
+      );
+  }
+});
+
+const getPosts = asyncHandler(async (req, res) => {
+  try {
+    const posts = await Post.find().populate("user", "username").sort({ createdAt: -1 });
+    res
+      .status(200)
+      .json(new ApiResponse(200, posts, "All posts retrieved successfully"));
+  } catch (error) {
+    res
+      .status(error.statusCode || 500)
+      .json(new ApiResponse(error.statusCode || 500, null, error.message));
   }
 });
 
 const getPostByUsername = asyncHandler(async (req, res) => {
-  const { username } = req.params;
-
-  if (!username) {
-    throw new ApiError(400, "Username is required");
+  try {
+    const { username } = req.params;
+    const userPosts = await Post.find({ "user.username": username }).populate(
+      "user",
+      "username"
+    );
+    res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          userPosts,
+          `Posts by ${username} retrieved successfully`
+        )
+      );
+  } catch (error) {
+    res
+      .status(error.statusCode || 500)
+      .json(new ApiResponse(error.statusCode || 500, null, error.message));
   }
-
-  const user = await User.findOne({ username });
-
-  if (!user) {
-    throw new ApiError(404, "User not found with the specified username");
-  }
-
-  const userPosts = await Post.find({ user: user._id });
-
-  if (!userPosts) {
-    throw new ApiError(404, "No posts found for the specified username");
-  }
-
-  res.status(200).json(userPosts);
 });
 
 const getPostDetails = asyncHandler(async (req, res) => {
-  const { postId } = req.params;
-
-  console.log(postId);
-  if (!postId) {
-    throw new ApiError(400, "Post ID is required");
+  try {
+    const { postId } = req.params;
+    const post = await Post.findById(postId).populate("user", "username followers").sort({ createdAt: -1 });
+    res
+      .status(200)
+      .json(new ApiResponse(200, post, "Post details retrieved successfully"));
+  } catch (error) {
+    res
+      .status(error.statusCode || 500)
+      .json(new ApiResponse(error.statusCode || 500, null, error.message));
   }
-
-  const post = await Post.findById(postId);
-
-  if (!post) {
-    throw new ApiError(404, "Post not found");
-  }
-
-  res.status(200).json(post);
-});
-
-const getAllPosts = asyncHandler(async (req, res) => {
-  const posts = await Post.find().populate('user', 'username');  ;
-
-  if (!posts) {
-    throw new ApiError(404, "No posts found");
-  }
-
-  res
-    .status(200)
-    .json(new ApiResponse(200, posts, "Posts fetched successfully"));
 });
 
 const getPostComments = asyncHandler(async (req, res) => {
-  const { postId } = req.params;
-  console.log(postId);
-  if (!postId) {
-    throw new ApiError(400, "Post ID is required");
+  try {
+    const { postId } = req.params;
+    const postComments = await Comment.find({ post: postId }).populate(
+      "user",
+      "username"
+    ).sort({ createdAt: -1 });
+    res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          postComments,
+          "Comments for the post retrieved successfully"
+        )
+      );
+  } catch (error) {
+    res
+      .status(error.statusCode || 500)
+      .json(new ApiResponse(error.statusCode || 500, null, error.message));
   }
-
-  const post = await Post.findById(postId);
-
-  if (!post) {
-    throw new ApiError(404, "Post not found");
-  }
-
-  console.log(post);
-  const comments = await Comment.find({ _id: { $in: post.comments } });
-  console.log(comments);
-  res
-    .status(200)
-    .json(new ApiResponse(200, comments, "Comments fetched successfully"));
 });
 
 const getCommentReplies = asyncHandler(async (req, res) => {
   const { commentId } = req.params;
+
   if (!commentId) {
     throw new ApiError(400, "Comment ID is required");
   }
 
-  const comment = await Comment.findById(commentId);
+  // Option 1: Sort replies in-memory after retrieval
+  const comment = await Comment.findById(commentId)
+    .populate("user", "username")
+    .populate("replies");
+
+  const replies = comment.replies.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   if (!comment) {
     throw new ApiError(404, "Comment not found");
   }
-  const replies = await Reply.find({ _id: { $in: comment.replies } });
-  console.log(replies);
+
   res
     .status(200)
-    .json(new ApiResponse(200, replies, "Replies fetched successfully"));
+    .json(
+      new ApiResponse(
+        200,
+        replies, // Use the sorted replies (either from in-memory sorting or aggregation)
+        "Replies for the comment retrieved successfully"
+      )
+    );
 });
 
-const getReplyNestedReplies = asyncHandler(async (req, res) => {
-  const { replyId } = req.params;
-  if (!replyId) {
-    throw new ApiError(400, "Reply ID is required");
-  }
 
-  const reply = await Reply.findById(replyId);
-  if (!reply) {
-    throw new ApiError(404, "Reply not found");
-  }
 
-  const nestedReplies = await Reply.find({ _id: { $in: reply.replies } });
-  console.log(nestedReplies);
-  res
-    .status(200)
-    .json(new ApiResponse(200, nestedReplies, "Replies fetched successfully"));
+
+const getReplyNestedReplies = asyncHandler (async (req, res) => {
+  const replyId = req.params.replyId;
+
+  try {
+    // Find the reply by ID
+    const reply = await Reply.findById(replyId);
+
+    if (!reply) {
+      return res.status(404).json({ message: "Reply not found" });
+    }
+
+    // Fetch nested replies for the reply
+    const nestedReplies = await Reply.find({ parentReply: replyId })
+
+    // Respond with the nested replies
+    res.status(200).json({ data: nestedReplies });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 });
+
 
 const deletePost = asyncHandler(async (req, res) => {
   const { postId } = req.params;
@@ -498,12 +686,14 @@ export {
   upvoteComment,
   downvoteComment,
   createReply,
-  createNestedReply,
   upvoteReply,
   downvoteReply,
+  createNestedReply,
+  upvoteNestedReply,
+  downvoteNestedReply,
   getPostByUsername,
   getPostDetails,
-  getAllPosts,
+  getPosts,
   deletePost,
   getPostComments,
   getCommentReplies,

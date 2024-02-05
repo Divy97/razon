@@ -8,7 +8,7 @@ const ChatBox = ({ fetchAgain, setFetchAgain }) => {
     <div
       className={`${
         selectedChat ? "chatBoxDisplay" : ""
-      } flex items-center flex-col p-3 border-2 w-[100%] h-[100%]`}
+      } flex items-center flex-col p-3 w-[100%] h-[100%]`}
     >
       {selectedChat ? (
         <SingleChat fetchAgain={fetchAgain} setFetchAgain={setFetchAgain} />
