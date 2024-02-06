@@ -53,7 +53,7 @@ const MainSection = () => {
   return (
     <div>
       <CreatePost />
-      <ScrollArea className="h-[90vh] w-[50vw] rounded-md border p-5 mx-auto my-5 text-justify">
+      <ScrollArea className="h-[78vh] w-[70vw] rounded-md border p-5 mx-auto my-5 text-justify">
         {posts.map((post) => (
           <Card key={post._id} className="mb-5 w-[100%] h-[auto] p-4">
             <div className="flex items-start justify-between px-5 py-2">
@@ -103,7 +103,7 @@ const MainSection = () => {
                   <img
                     src={post?.image}
                     alt="Image"
-                    className="rounded-md object-cover ml-44 h-[300px] w-[500px]"
+                    className="rounded-md object-cover m-auto h-[300px] w-[500px]"
                   />
                 )}
               </div>

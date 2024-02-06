@@ -7,6 +7,7 @@ import ChatProvider from "./context/ChatProvider.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ErrorPage from "./error-page.jsx";
 import IndividualPost from "./components/IndividualPost.jsx";
+import CreateIndividualPost from "./components/CreateIndividualPost.jsx";
 
 const router = createBrowserRouter([
   {
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
   {
     path: "/post/:postId",
     element: <IndividualPost />,
+  },
+  {
+    path: "/create-post",
+    element: <CreateIndividualPost />,
   },
 ]);
 
