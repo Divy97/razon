@@ -28,17 +28,18 @@ import {
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { SERVER } from "../../constants.js";
+import { SERVER } from "../constants.js";
 
 import { Link } from "react-router-dom";
 import { calculateTime } from "./utils/calculateTime.js";
 import CreatePost from "./CreatePost.jsx";
 
+import { toast } from "react-toastify";
+
 const MainSection = () => {
   const [posts, setPosts] = useState([]);
-
   useEffect(() => {
-    var requestOptions = {
+    let requestOptions = {
       method: "GET",
       redirect: "follow",
     };
@@ -49,7 +50,6 @@ const MainSection = () => {
       .catch((error) => console.log("error", error));
   }, []);
 
-  console.log(posts);
   return (
     <div>
       <CreatePost />
@@ -57,40 +57,74 @@ const MainSection = () => {
         {posts.map((post) => (
           <Card key={post._id} className="mb-5 w-[100%] h-[auto] p-4">
             <div className="flex items-start justify-between px-5 py-2">
-            <div className="flex items-center justify-around gap-3">
-                  <Avatar>
-                    <AvatarImage
-                      className="w-[3rem] h-[3rem]"
-                      style={{
-                        borderRadius: "50%",
-                        border: "2px solid gray",
-                      }}
-                      src="https://github.com/shadcn.png"
-                    />
-                    <AvatarFallback>CN</AvatarFallback>
-                  </Avatar>
-                  <h1 className="text-xl font-extrabold text-center">
-                    {post?.user?.username?.toUpperCase()}
-                  </h1>
-                  <h1 className="text-xl font-bold text-center">
-                    Posted {calculateTime(post?.createdAt)}
-                  </h1>
-                </div>
+              <div className="flex items-center justify-around gap-3">
+                <Avatar>
+                  <AvatarImage
+                    className="w-[3rem] h-[3rem]"
+                    style={{
+                      borderRadius: "50%",
+                      border: "2px solid gray",
+                    }}
+                    src={post?.user?.avatar}
+                  />
+                  <AvatarFallback className="flex items-center text-center text-xl font-bold">
+                    {post?.user?.username.substring(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <h1 className="text-xl font-extrabold text-center">
+                  {post?.user?.username?.toUpperCase()}
+                </h1>
+                <h1 className="text-xl font-bold text-center">
+                  Posted {calculateTime(post?.createdAt)}
+                </h1>
+              </div>
               <div className="flex gap-2 items-center justify-center">
                 <Menubar>
                   <MenubarMenu>
-                    <MenubarTrigger>
+                    <MenubarTrigger className="cursor-pointer">
                       <List />
                     </MenubarTrigger>
                     <MenubarContent>
                       <MenubarItem className="flex gap-5 items-center">
                         <CircleSlash2 />{" "}
-                        <p className="text-lg">Do Not recommend</p>
+                        <p
+                          className="text-lg cursor-pointer"
+                          onClick={() => {
+                            toast.info("You have a good taste, NOTED", {
+                              position: "top-right",
+                              autoClose: 5000,
+                              hideProgressBar: false,
+                              closeOnClick: true,
+                              pauseOnHover: true,
+                              draggable: true,
+                              progress: undefined,
+                              theme: "dark",
+                            });
+                          }}
+                        >
+                          Do Not recommend  
+                        </p>
                       </MenubarItem>
-
                       <MenubarSeparator />
                       <MenubarItem className="flex gap-5 items-center">
-                        <Flag /> <p className="text-lg">Report</p>
+                        <Flag />{" "}
+                        <p
+                          className="text-lg cursor-pointer"
+                          onClick={() => {
+                            toast.info("AYE AYE CAPTAIN, REPORTED", {
+                              position: "top-right",
+                              autoClose: 5000,
+                              hideProgressBar: false,
+                              closeOnClick: true,
+                              pauseOnHover: true,
+                              draggable: true,
+                              progress: undefined,
+                              theme: "dark",
+                            });
+                          }}
+                        >
+                          Report
+                        </p>
                       </MenubarItem>
                     </MenubarContent>
                   </MenubarMenu>
@@ -103,19 +137,22 @@ const MainSection = () => {
                   <img
                     src={post?.image}
                     alt="Image"
-                    className="rounded-md object-cover m-auto h-[300px] w-[500px]"
+                    className="rounded-md object-contain m-auto h-[300px] w-[500px]"
                   />
                 )}
               </div>
-
               <CardHeader className="flex w-100 flex-row items-center max-h-10 gap-2">
                 <CardTitle>{post.title}</CardTitle>
                 <div className="flex flex-row items-center gap-2 pb-1">
-                  {post.tags.map((tag, index) => (
-                    <Badge key={index} className="dark:bg-white bg-black">
-                      {tag}
-                    </Badge>
-                  ))}
+                  {post.tags.map(
+                    (tag, index) =>
+                      tag !== "undefined" &&
+                      tag !== "[]" && (
+                        <Badge key={index} className="dark:bg-white bg-black">
+                          {tag}
+                        </Badge>
+                      )
+                  )}
                 </div>
               </CardHeader>
               <CardContent>

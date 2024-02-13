@@ -3,9 +3,8 @@ import ApiResponse from "../utils/ApiResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 import { Post, Comment, Reply } from "../model/post.model.js";
-// import {  } from "../model/reply.model.js";
 import { User } from "../model/user.model.js";
-import uploadImageOnCloudinary from "../utils/cloudinary.js";
+import uploadOnCloudinary from "../utils/cloudinary.js";
 
 const isUserUpvotedOrDownvoted = (user, upvotes, downvotes) => ({
   alreadyUpvoted: upvotes.includes(user),
@@ -14,33 +13,54 @@ const isUserUpvotedOrDownvoted = (user, upvotes, downvotes) => ({
 
 const createPost = asyncHandler(async (req, res) => {
   const { title, content, tags } = req.body;
-
   if (!req.user) {
-    throw new Error("User not authorized");
+    return res
+      .status(401)
+      .json(new ApiResponse(401, null, "User not authorized"));
   }
+
   if (!title) {
-    throw new Error("Title is Required");
+    return res
+      .status(400)
+      .json(new ApiResponse(400, null, "Title is required"));
   }
 
   if (!content) {
-    throw new Error("Content is Required");
+    return res
+      .status(400)
+      .json(new ApiResponse(400, null, "Content is required"));
   }
 
-  const imageLocalPath = req.files?.avatar[0]?.path;
-  const postImage = await uploadImageOnCloudinary(imageLocalPath);
+  let avatarUrl = ""; // Default empty string for the avatar URL
+
+  if (req.files && req.files.avatar && req.files.avatar.length > 0) {
+    // If an avatar is provided, upload it to Cloudinary
+    const avatarLocalPath = req.files.avatar[0].path;
+    const avatar = await uploadOnCloudinary(avatarLocalPath);
+
+    // Update avatarUrl only if the upload was successful
+    if (avatar) {
+      avatarUrl = avatar.url;
+    }
+  }
   const createPost = await Post.create({
-    title,
-    content,
+    title: title,
+    content: content,
+    image: avatarUrl,
     user: req.user._id,
-    tags: tags || [],
+    tags: tags,
   });
 
   if (!createPost) {
-    throw new Error("Something went wrong while creating a post");
+    return res
+      .status(500)
+      .json(
+        new ApiResponse(500, null, "Something went wrong while creating a post")
+      );
   }
 
   const post = await Post.findById(createPost._id).populate("user", "username");
-  res
+  return res  
     .status(200)
     .json(
       new ApiResponse(
@@ -402,7 +422,7 @@ const createNestedReply = asyncHandler(async (req, res) => {
     const nestedReply = new Reply({
       content,
       user: req.user?._id,
-      parentReply: reply_id
+      parentReply: reply_id,
     });
 
     await nestedReply.save();
@@ -523,7 +543,9 @@ const downvoteNestedReply = asyncHandler(async (req, res) => {
 
 const getPosts = asyncHandler(async (req, res) => {
   try {
-    const posts = await Post.find().populate("user", "username").sort({ createdAt: -1 });
+    const posts = await Post.find()
+      .populate("user", "username avatar")
+      .sort({ createdAt: -1 });
     res
       .status(200)
       .json(new ApiResponse(200, posts, "All posts retrieved successfully"));
@@ -539,7 +561,7 @@ const getPostByUsername = asyncHandler(async (req, res) => {
     const { username } = req.params;
     const userPosts = await Post.find({ "user.username": username }).populate(
       "user",
-      "username"
+      "username avatar"
     );
     res
       .status(200)
@@ -560,7 +582,9 @@ const getPostByUsername = asyncHandler(async (req, res) => {
 const getPostDetails = asyncHandler(async (req, res) => {
   try {
     const { postId } = req.params;
-    const post = await Post.findById(postId).populate("user", "username followers").sort({ createdAt: -1 });
+    const post = await Post.findById(postId)
+      .populate("user", "username avatar followers")
+      .sort({ createdAt: -1 });
     res
       .status(200)
       .json(new ApiResponse(200, post, "Post details retrieved successfully"));
@@ -574,10 +598,9 @@ const getPostDetails = asyncHandler(async (req, res) => {
 const getPostComments = asyncHandler(async (req, res) => {
   try {
     const { postId } = req.params;
-    const postComments = await Comment.find({ post: postId }).populate(
-      "user",
-      "username"
-    ).sort({ createdAt: -1 });
+    const postComments = await Comment.find({ post: postId })
+      .populate("user", "username avatar")
+      .sort({ createdAt: -1 });
     res
       .status(200)
       .json(
@@ -601,31 +624,27 @@ const getCommentReplies = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Comment ID is required");
   }
 
-  // Option 1: Sort replies in-memory after retrieval
-  const comment = await Comment.findById(commentId)
-    .populate("user", "username")
-    .populate("replies");
+  // Populate the "replies" field of the comment and the "user" field for each reply
+  const comment = await Comment.findById(commentId).populate({
+    path: 'replies',
+    populate: { path: 'user', select: 'username avatar' }
+  });
 
-  const replies = comment.replies.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   if (!comment) {
     throw new ApiError(404, "Comment not found");
   }
 
-  res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        replies, // Use the sorted replies (either from in-memory sorting or aggregation)
-        "Replies for the comment retrieved successfully"
-      )
-    );
+  res.status(200).json(
+    new ApiResponse(
+      200,
+      comment.replies,
+      "Replies for the comment retrieved successfully"
+    )
+  );
 });
+  
 
-
-
-
-const getReplyNestedReplies = asyncHandler (async (req, res) => {
+const getReplyNestedReplies = asyncHandler(async (req, res) => {
   const replyId = req.params.replyId;
 
   try {
@@ -637,7 +656,7 @@ const getReplyNestedReplies = asyncHandler (async (req, res) => {
     }
 
     // Fetch nested replies for the reply
-    const nestedReplies = await Reply.find({ parentReply: replyId })
+    const nestedReplies = await Reply.find({ parentReply: replyId });
 
     // Respond with the nested replies
     res.status(200).json({ data: nestedReplies });
@@ -646,7 +665,6 @@ const getReplyNestedReplies = asyncHandler (async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
-
 
 const deletePost = asyncHandler(async (req, res) => {
   const { postId } = req.params;

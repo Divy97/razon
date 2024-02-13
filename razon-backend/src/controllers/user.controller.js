@@ -143,7 +143,7 @@ const registerUser = asyncHandler(async (req, res) => {
     username,
     password,
     bio,
-    avatar: avatar?.url,
+    avatar: avatar?.url || "https://github.com/shadcn.png",
     verificationToken,
   });
 
@@ -185,6 +185,7 @@ const verifyUser = asyncHandler(async (req, res) => {
 
 const loginUser = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
+  console.log(username, password);
   if (!username) {
     throw new ApiError(400, "Username is required");
   }

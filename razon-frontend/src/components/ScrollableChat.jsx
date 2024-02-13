@@ -52,12 +52,12 @@ const ScrollableChat = ({ messages }) => {
 
   return (
     // <ScrollArea className="h-[58vh] w-[100%] flex items-end flex-col pr-2">
-    <ScrollArea className="h-auto flex flex-col pr-2 " style={{flexDirection:"column-reverse"}}>
+    <ScrollArea className="h-[auto] max-h-[60vh] flex flex-col pr-2 " style={{flexDirection:"column-reverse"}}>
       {messages &&
         messages.map((m, i) => (
           <div className="flex" key={m._id}>
-            {(isSameSender(messages, m, i, JSON.parse(user)?._id) ||
-              isLastMessage(messages, i, JSON.parse(user)?._id)) && (
+            {(isSameSender(messages, m, i, user?._id) ||
+              isLastMessage(messages, i, user?._id)) && (
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -68,9 +68,9 @@ const ScrollableChat = ({ messages }) => {
                           borderRadius: "50%",
                           border: "2px solid gray",
                         }}
-                        src="https://github.com/shadcn.png"
+                        src={m.sender.Avatar}
                       />
-                      <AvatarFallback>CN</AvatarFallback>
+                      <AvatarFallback className="flex items-center text-center text-xl font-bold">{m.sender.username.substring(0,2).toUpperCase()}</AvatarFallback>
                     </Avatar>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -82,13 +82,13 @@ const ScrollableChat = ({ messages }) => {
             <span
               style={{
                 backgroundColor: `${
-                  m.sender._id === JSON.parse(user)._id ? "#BEE3F8" : "#B9F5D0"
+                  m.sender._id === user._id ? "#BEE3F8" : "#B9F5D0"
                 }`,
                 marginLeft: isSameSenderMargin(
                   messages,
                   m,
                   i,
-                  JSON.parse(user)?._id
+                  user?._id
                 ),
                 marginTop: isSameUser(messages, m, i) ? 3 : 10,
                 borderRadius: "20px",

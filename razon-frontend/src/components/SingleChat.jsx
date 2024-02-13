@@ -21,6 +21,7 @@ import { Settings, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import ScrollableChat from "./ScrollableChat";
 import io from "socket.io-client";
+import {SERVER} from "../constants.js";
 
 const ENDPOINT = "http://localhost:8080";
 let socket, selectedChatCompare;
@@ -63,7 +64,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         redirect: "follow",
       };
 
-      fetch("http://localhost:8080/api/v1/chat/group/rename", requestOptions)
+      fetch(`$${SERVER}/chat/group/rename`, requestOptions)
         .then((response) => response.json())
         .then((result) => {
           setSelectedChat(result.data);
@@ -107,7 +108,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         };
 
         fetch(
-          `http://localhost:8080/api/v1/users/user?search=${search}`,
+          `${SERVER}/users/user?search=${search}`,
           requestOptions
         )
           .then((response) => response.json())
@@ -136,7 +137,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     }
     // console.log("selectedChat?.groupAdmin?._id", selectedChat?.groupAdmin?._id);
     // console.log("user?._id", user);
-    if (selectedChat?.groupAdmin?._id !== JSON.parse(user)?._id) {
+    if (selectedChat?.groupAdmin?._id !== user?._id) {
       toast({
         title: "Only Admins can add someone",
         variant: "destructive",
@@ -162,7 +163,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         redirect: "follow",
       };
 
-      fetch("http://localhost:8080/api/v1/chat/group/add", requestOptions)
+      fetch(`${SERVER}/chat/group/add`, requestOptions)
         .then((response) => response.text())
         .then((result) => {
           setSelectedChat(result.data);
@@ -181,8 +182,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   const handleRemove = async (userToRemove) => {
     if (
-      selectedChat?.groupAdmin?._id !== JSON.parse(user)?._id &&
-      userToRemove?._id !== JSON.parse(user)?._id
+      selectedChat?.groupAdmin?._id !== user?._id &&
+      userToRemove?._id !== user?._id
     ) {
       toast({
         title: "Only Admins can remove someone",
@@ -208,15 +209,15 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         redirect: "follow",
       };
 
-      fetch("http://localhost:8080/api/v1/chat/group/remove", requestOptions)
+      fetch(`$${SERVER}/chat/group/remove`, requestOptions)
         .then((response) => response.text())
         .then((result) => {
           console.log("userToRemove?._id", userToRemove?._id);
           console.log(
-            "JSON.parse(user)?._id",
-            JSON.parse(user)?._id === userToRemove?._id
+            "user?._id",
+            user?._id === userToRemove?._id
           );
-          userToRemove?._id === JSON.parse(user)?._id
+          userToRemove?._id === user?._id
             ? setSelectedChat()
             : setSelectedChat(result.data);
           setFetchAgain(!fetchAgain);
@@ -251,7 +252,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       };
 
       fetch(
-        `http://localhost:8080/api/v1/message/${selectedChat?._id}`,
+        `${SERVER}/message/${selectedChat?._id}`,
         requestOptions
       )
         .then((response) => response.json())
@@ -292,7 +293,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           redirect: "follow",
         };
 
-        fetch("http://localhost:8080/api/v1/message", requestOptions)
+        fetch(`${SERVER}/message`, requestOptions)
           .then((response) => response.json())
           .then((result) => {
             setNewMessage("");
@@ -347,7 +348,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   useEffect(() => {
     socket = io(ENDPOINT);
-    socket.emit("setup", JSON.parse(user));
+    socket.emit("setup", user);
     socket.on("connected", () => {
       setSocketConnected(true);
     });
@@ -376,7 +377,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           <div className="bg-white w-[100%] text-black flex border-2 border-black ">
             {!selectedChat.isGroupChat ? (
               <h1 className="text-3xl m-auto p-auto font-bold font-mono">
-                {getSender(JSON.parse(user), selectedChat.users).toUpperCase()}
+                {getSender(user, selectedChat.users).toUpperCase()}
               </h1>
             ) : (
               <div className="flex items-center justify-between w-[100%]">
@@ -452,9 +453,9 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                                   borderRadius: "50%",
                                   border: "2px solid gray",
                                 }}
-                                src="https://github.com/shadcn.png"
+                                src={result?.avatar}
                               />
-                              <AvatarFallback>CN</AvatarFallback>
+                              <AvatarFallback className="flex items-center text-center text-xl font-bold">{result?.username?.substring(0,2).toUpperCase()}</AvatarFallback>
                             </Avatar>
                             <div>
                               <p className="text-lg font-bold font-mono ">
@@ -469,7 +470,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
                       <Button
                         type="submit"
                         letiant="destructive"
-                        onClick={() => handleRemove(JSON.parse(user))}
+                        onClick={() => handleRemove(user)}
                       >
                         Leave Group
                       </Button>
@@ -489,12 +490,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               isTyping ? <h1 className="text-white mb-1 ml-1">typing...</h1> : ""
             }
             <Input
-              type="email"
+              type="text"
               placeholder="Write Something..."
               onKeyDown={sendMessage}
               onChange={typingHandler}
               value={newMessage}
-            />
+              />
           </div>
         </>
       ) : (
