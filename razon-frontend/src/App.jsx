@@ -27,10 +27,9 @@ const App = () => {
         progress: undefined,
         theme: "dark",
         });
-        setTimeout(() => {
-          
-          document?.getElementById("gossipID")?.click()
-        }, 100);
+        // setTimeout(() => {
+        //   document?.getElementById("gossipID")?.click()
+        // }, 100);
     } else {
       toast.warn('Oops, Please login for gossiping', {
         position: "top-right",
@@ -54,13 +53,13 @@ const App = () => {
       <Navigation />
       <MainSection />
       <Drawer>
-        <div
+        <DrawerTrigger
           id="gossipID"
           className="cursor-pointer fixed p-3 w-70 border-2 rounded bottom-5 right-5 items-center flex gap-3 justify-center"
         >
           <MessageCircleHeart className="mb-1.5" />
           <p className="text-xl font-semibold font-mono" onClick={handleGossip}>Gossip</p>
-        </div>
+        </DrawerTrigger>
         <DrawerContent>
           <ChatSection />
         </DrawerContent>

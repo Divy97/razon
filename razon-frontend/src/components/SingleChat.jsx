@@ -164,7 +164,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       };
 
       fetch(`${SERVER}/chat/group/add`, requestOptions)
-        .then((response) => response.text())
+        .then((response) => response.json())
         .then((result) => {
           setSelectedChat(result.data);
           setFetchAgain(!fetchAgain);
@@ -209,8 +209,8 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         redirect: "follow",
       };
 
-      fetch(`$${SERVER}/chat/group/remove`, requestOptions)
-        .then((response) => response.text())
+      fetch(`${SERVER}/chat/group/remove`, requestOptions)
+        .then((response) => response.json())
         .then((result) => {
           console.log("userToRemove?._id", userToRemove?._id);
           console.log(

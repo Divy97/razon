@@ -56,7 +56,6 @@ const Navigation = () => {
         theme: "dark",
         });
         setTimeout(() => {
-          
           document?.getElementById("gossipID")?.click()
         }, 100);
     } else {
