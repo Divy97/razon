@@ -122,7 +122,7 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Username is required");
   }
 
-  if (!password ) {
+  if (!password) {
     throw new ApiError(400, "Password is required");
   }
 
@@ -306,6 +306,28 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, req.user, "Current user fetched successfully"));
 });
 
+const getUser = asyncHandler(async (req, res) => {
+  const { username } = req.params;
+
+  if (!username) {
+    throw new ApiError(404, "Username is empty");
+  }
+
+  console.log(username);
+
+  // Use await with findOne and handle the asynchronous nature
+  const foundUser = await User.findOne({
+    username: username, // Corrected to use the extracted username
+  });
+
+  if (!foundUser) {
+    throw new ApiError(404, "User not found");
+  }
+
+  return res.status(200).json(new ApiResponse(200, foundUser, "User details"));
+});
+
+
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
     req.cookies?.refreshToken || req.body?.refreshToken;
@@ -467,4 +489,5 @@ export {
   followUser,
   unFollowUser,
   allUsers,
+  getUser
 };

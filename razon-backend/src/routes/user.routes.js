@@ -12,7 +12,8 @@ import {
   verifyUser,
   followUser,
   unFollowUser,
-  allUsers
+  allUsers,
+  getUser
 } from "../controllers/user.controller.js";
 import { verifyJwt } from "../middleware/auth.middleware.js";
 import { upload } from "../middleware/multer.middleware.js";
@@ -47,5 +48,6 @@ router.route("/followUser/:userIdToFollow").post(verifyJwt, followUser);
 router.route("/unFollowUser/:userIdToUnFollow").post(verifyJwt, unFollowUser);
 
 router.route("/user").get(verifyJwt, allUsers);
+router.route("/user/:username").get(getUser);
 export default router;
 

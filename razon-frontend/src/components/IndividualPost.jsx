@@ -588,7 +588,9 @@ const IndividualPost = () => {
             <div className="h-[auto] w-[60vw] border-2">
               <div className="h-[2vh] w-[60vw] pt-7 pl-5 pr-5 rounded flex justify-between items-center">
                 <div className="flex items-center justify-around gap-3">
-                  <Avatar>
+                  <Avatar onClick={() => {
+                          navigate(`/profile/${postDetails?.user?.username}`)
+                        }} className="cursor-pointer">
                     <AvatarImage
                       className="w-[3rem] h-[3rem]"
                       style={{
@@ -720,7 +722,9 @@ const IndividualPost = () => {
                 {postComments?.map((comment) => (
                   <div key={comment?._id}>
                     <div className="flex items-center gap-4">
-                      <Avatar>
+                      <Avatar onClick={() => {
+                          navigate(`/profile/${comment?.user?.username}`)
+                        }} className="cursor-pointer" >
                         <AvatarImage
                           className="w-[3rem] h-[3rem]"
                           style={{
@@ -803,7 +807,9 @@ const IndividualPost = () => {
                             <>
                               <div key={reply._id}>
                                 <div className="flex items-center gap-2 justify-start">
-                                  <Avatar>
+                                  <Avatar onClick={() => {
+                          navigate(`/profile/${reply?.user?.username}`)
+                        }} className="cursor-pointer" >
                                     <AvatarImage
                                       className="w-[2rem] h-[2rem]"
                                       style={{

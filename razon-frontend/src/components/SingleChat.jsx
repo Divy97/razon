@@ -16,9 +16,9 @@ import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import {toast} from 'react-toastify'
 
 import { Settings, X } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
 import ScrollableChat from "./ScrollableChat";
 import io from "socket.io-client";
 import {SERVER} from "../constants.js";
@@ -27,7 +27,6 @@ const ENDPOINT = "http://localhost:8080";
 let socket, selectedChatCompare;
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const { user, selectedChat, setSelectedChat, token } = ChatState();
-  const { toast } = useToast();
 
   const getSender = (loggedUser, users) => {
     return users[0]?._id === loggedUser?._id
@@ -70,19 +69,30 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           setSelectedChat(result.data);
           setFetchAgain(!fetchAgain);
           setRenameLoading(false);
-          toast({
-            title: "Group renamed Successfully",
-            description: "",
-          });
+          toast.success('Group renamed successfully', {
+            position: "top-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+            });
           console.log(result);
         })
         .catch((error) => console.log("error", error));
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Oops!",
-        description: "Something went wrong",
-      });
+      toast.error('Oops, Something went wrong', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
     }
     document?.getElementById("dialogClose")?.click();
     setGroupChatName("");
@@ -90,11 +100,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   const handleSearch = (search) => {
     if (!search) {
-      toast({
-        variant: "destructive",
-        title: "Enter User name to search",
-        description: "",
-      });
+      toast.warn('Enter Username to search', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
     } else {
       try {
         setLoading(true);
@@ -119,29 +134,47 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           })
           .catch((error) => console.log("error", error));
       } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "Oops!",
-          description: "Failed to load search results",
-        });
+        toast.warn('Oops, Something went wrong', {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          });
       }
     }
   };
 
   const handleAddUser = async (userToAdd) => {
     if (selectedChat?.users?.find((u) => u._id === userToAdd?._id)) {
-      toast({
-        title: "User already in the group!",
-      });
+      toast.warn('Oops, User already in group', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
       return;
     }
     // console.log("selectedChat?.groupAdmin?._id", selectedChat?.groupAdmin?._id);
     // console.log("user?._id", user);
     if (selectedChat?.groupAdmin?._id !== user?._id) {
-      toast({
-        title: "Only Admins can add someone",
-        variant: "destructive",
-      });
+      toast.error('Only Admin can add users', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
       return;
     }
 
@@ -172,11 +205,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         })
         .catch((error) => console.log("error", error));
     } catch (error) {
-      toast({
-        title: "Oops!",
-        description: "Something went wrong!",
-        variant: "destructive",
-      });
+      toast.error('Oops, Something went wrong', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
     }
   };
 
@@ -185,10 +223,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       selectedChat?.groupAdmin?._id !== user?._id &&
       userToRemove?._id !== user?._id
     ) {
-      toast({
-        title: "Only Admins can remove someone",
-        variant: "destructive",
-      });
+      toast.error('Only Admin can remove someone', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
       return;
     }
     try {
@@ -226,11 +270,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         })
         .catch((error) => console.log("error", error));
     } catch (error) {
-      toast({
-        title: "Oops!",
-        description: "Something went wrong!",
-        variant: "destructive",
-      });
+      toast.error('Something went wrong', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
     }
   };
 
@@ -265,11 +314,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         })
         .catch((error) => console.log("error", error));
     } catch (error) {
-      toast({
-        title: "Oops!",
-        description: "Failed to load messages!",
-        variant: "destructive",
-      });
+      toast.error('Oops, Something went wrong', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
     }
   };
 
@@ -303,11 +357,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           })
           .catch((error) => console.log("error", error));
       } catch (error) {
-        toast({
-          title: "Oops!",
-          description: "Failed to send message!",
-          variant: "destructive",
-        });
+        toast.error('Oops, Something went wrong', {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          });
       }
     }
   };

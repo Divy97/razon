@@ -23,7 +23,7 @@ const Navigation = () => {
   const navigate = useNavigate();
   const handleProfile = () => {
     if(token) {
-      alert("In profile")
+      navigate(`/profile/${user.username}`)
     } else {
       toast.warn('Oops, You are not loggedIn, Please login', {
         position: "top-right",

@@ -13,6 +13,7 @@ const isUserUpvotedOrDownvoted = (user, upvotes, downvotes) => ({
 
 const createPost = asyncHandler(async (req, res) => {
   const { title, content, tags } = req.body;
+  console.log(title, content, tags);
   if (!req.user) {
     return res
       .status(401)
@@ -60,7 +61,7 @@ const createPost = asyncHandler(async (req, res) => {
   }
 
   const post = await Post.findById(createPost._id).populate("user", "username");
-  return res  
+  return res
     .status(200)
     .json(
       new ApiResponse(
@@ -559,16 +560,22 @@ const getPosts = asyncHandler(async (req, res) => {
 const getPostByUsername = asyncHandler(async (req, res) => {
   try {
     const { username } = req.params;
-    const userPosts = await Post.find({ "user.username": username }).populate(
-      "user",
-      "username avatar"
-    );
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res
+        .status(404)
+        .json(new ApiResponse(404, null, "User not found"));
+    }
+
+    const posts = await Post.find({ user: user._id }).populate("user");
+
+
     res
       .status(200)
       .json(
         new ApiResponse(
           200,
-          userPosts,
+          posts,
           `Posts by ${username} retrieved successfully`
         )
       );
@@ -626,23 +633,24 @@ const getCommentReplies = asyncHandler(async (req, res) => {
 
   // Populate the "replies" field of the comment and the "user" field for each reply
   const comment = await Comment.findById(commentId).populate({
-    path: 'replies',
-    populate: { path: 'user', select: 'username avatar' }
+    path: "replies",
+    populate: { path: "user", select: "username avatar" },
   });
 
   if (!comment) {
     throw new ApiError(404, "Comment not found");
   }
 
-  res.status(200).json(
-    new ApiResponse(
-      200,
-      comment.replies,
-      "Replies for the comment retrieved successfully"
-    )
-  );
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        comment.replies,
+        "Replies for the comment retrieved successfully"
+      )
+    );
 });
-  
 
 const getReplyNestedReplies = asyncHandler(async (req, res) => {
   const replyId = req.params.replyId;

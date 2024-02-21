@@ -101,11 +101,16 @@ const ChatSection = () => {
 
   const handleSearch = () => {
     if (!search) {
-      toast({
-        variant: "destructive",
-        title: "Enter User name to search",
-        description: "",
-      });
+      toast.warn('Oops, Enter UserName to Search', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
     } else {
       try {
         setLoading(true);
@@ -127,11 +132,16 @@ const ChatSection = () => {
           })
           .catch((error) => console.log("error", error));
       } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "Oops!",
-          description: "Failed to load search results",
-        });
+        toast.error('Oops, Something went wrong', {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          });
       }
     }
   };
@@ -167,11 +177,16 @@ const ChatSection = () => {
         })
         .catch((error) => console.log("error", error));
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Oops!",
-        description: "Failed to Create chat, try again later",
-      });
+      toast.error('Oops, Something went wrong', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
     }
   };
 
@@ -193,11 +208,16 @@ const ChatSection = () => {
         })
         .catch((error) => console.log("error", error));
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Oops!",
-        description: "Failed to Create chat, try again later",
-      });
+      toast.error('Oops, Something went wrong', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
     }
   };
 
@@ -245,11 +265,16 @@ const ChatSection = () => {
           })
           .catch((error) => console.log("error", error));
       } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "Oops!",
-          description: "Failed to load search results",
-        });
+        toast.error('Oops, Something went wrong', {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          });
       }
     }
   };
@@ -257,9 +282,16 @@ const ChatSection = () => {
   const handleCreateChat = (userToAdd) => {
     console.log('hey', user?.username === userToAdd.username);
     if (selectedGroupUsers?.includes(userToAdd)) {
-      toast({
-        title: "User already in the group!",
-      });
+      toast.warn('User already in the group', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
       return;
     }
 
@@ -288,11 +320,16 @@ const ChatSection = () => {
 
   const handleCreateGroup = () => {
     if (!groupChatName || !selectedGroupUsers) {
-      toast({
-        variant: "destructive",
-        title: "Oops!",
-        description: "Please fill all the fields",
-      });
+      toast.warn('Oops, Fill all the details', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
     }
 
     try {
@@ -319,11 +356,16 @@ const ChatSection = () => {
         })
         .catch((error) => console.log("error", error));
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Oops!",
-        description: "Something went wrong",
-      });
+      toast.error('Oops, Something went wrong', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
     }
   };
 
@@ -419,7 +461,9 @@ const ChatSection = () => {
                           key={result?._id}
                           onClick={() => accessChat(result?._id)}
                         >
-                          <Avatar>
+                          <Avatar className="cursor-pointer" onClick={() => {
+                            navigate(`profile/${result.username}`)
+                          }}>
                             <AvatarImage
                               className="w-[3rem] h-[3rem] p-1"
                               style={{
@@ -585,7 +629,9 @@ const ChatSection = () => {
                         key={result?._id}
                         onClick={() => handleCreateChat(result)}
                       >
-                        <Avatar>
+                        <Avatar onClick={() => {
+                          navigate(`/profile/${result?.username}`)
+                        }} className="cursor-pointer">
                           <AvatarImage
                             className="w-[3rem] h-[3rem] p-1"
                             style={{

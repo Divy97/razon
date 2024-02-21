@@ -13,6 +13,7 @@ import AuthPage from "./components/auth/AuthPage.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Login from "./components/auth/Login.jsx";
+import UserProfile from "./components/Profile/UserProfile.jsx";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
+  },
+  {
+    path: "/profile/:username",
+    element: <UserProfile />,
   },
 ]);
 
