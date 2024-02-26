@@ -131,14 +131,14 @@ const CreateIndividualPost = () => {
     <div>
       <Toaster />
       <Navigation />
-      <div className="border-2 w-[60vw] h-[auto] ml-[9rem] mt-10 mb-5 flex flex-col p-5">
+      <div className="border-2 sm:w-[60vw] h-[auto] mx-auto w-[90vw] mt-10 mb-5 flex flex-col p-5 ">
         <div className="flex mt-5">
-          <h1 className="text-4xl font-mono font-extrabold">Create a Post</h1>
+          <h1 className=" text-2xl md:text-4xl font-mono font-extrabold">Create a Post</h1>
         </div>
         <Separator className="my-2 border-2" />
         <Input
           placeholder="Type a title...."
-          className="h-[3rem] text-2xl font-extrabold  mt-6 pl-5 border-spacing-3 border-black dark:border-white focus:border-0"
+          className="md:h-[3rem] md:text-2xl font-extrabold  mt-6 pl-5 border-spacing-3 border-black dark:border-white focus:border-0"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
@@ -151,10 +151,10 @@ const CreateIndividualPost = () => {
 
         <div className="mt-5">
           <div className="flex items-center w-100 gap-6">
-            <h1 className="text-3xl font-mono font-extrabold">Upload Image</h1>
+            <h1 className="md:text-3xl font-mono font-extrabold w-full md:w-auto">Upload Image</h1>
             <label
               htmlFor="fileInput"
-              className="border-2 w-[10rem] text-center p-1 text-xl font-bold rounded cursor-pointer"
+              className="border-2 w-[10rem] text-center p-1 md:text-xl font-bold rounded cursor-pointer"
             >
               SELECT
             </label>
@@ -175,19 +175,19 @@ const CreateIndividualPost = () => {
             )}
           </div>
           <div className="flex items-center w-100 gap-24 mt-5">
-            <h1 className="text-3xl font-mono font-extrabold">Add tags</h1>
+            <h1 className="md:text-3xl font-mono md:font-extrabold w-full md:w-auto">Add tags</h1>
             <Dialog>
               <DialogTrigger asChild>
                 <Button
                   variant="outline"
-                  className="border-2 w-[10rem] text-center p-1 text-xl font-bold rounded cursor-pointer"
+                  className="border-2 w-[10rem] text-center p-1 md:text-xl font-bold rounded cursor-pointer"
                 >
-                  <p className="text-lg font-bold font-mono">TAGS</p>
+                  <p className="md:text-lg font-bold font-mono">TAGS</p>
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
+              <DialogContent className="sm:max-w-[425px] w-[80vw]">
                 <DialogHeader>
-                  <DialogTitle className="text-2xl">
+                  <DialogTitle className="md:text-2xl">
                     ADD SOME COOL TAGS
                   </DialogTitle>
                 </DialogHeader>
@@ -224,6 +224,8 @@ const CreateIndividualPost = () => {
                       document?.getElementById("dialogClose")?.click();
                     }}
                     className="w-[6rem] text-lg font-bold rounded-lg"
+                    // variant={"md"}
+                    size={"sm"}
                   >
                     Done
                   </Button>
@@ -233,7 +235,8 @@ const CreateIndividualPost = () => {
           </div>
           <div className="flex mt-2 justify-end">
             <Button
-              className="w-[10rem] text-xl font-bold rounded-lg"
+            
+              className="w-[5rem] md:w-[10rem] md:text-xl font-bold rounded-lg"
               onClick={() => handleCreatePost()}
             >
               Post

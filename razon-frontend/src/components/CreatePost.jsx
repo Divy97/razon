@@ -13,7 +13,7 @@ const CreatePost = () => {
   return (
     <NavLink to="/create-post" className="mx-auto">
       <div className="h-[10vh] w-[70vw] rounded-md border justify-between mx-auto flex items-center pl-5 pr-5 gap-8">
-        <Avatar>
+        <Avatar className=" hidden md:flex">
           <AvatarImage
             className="w-[4rem] h-[4rem]"
             style={{
@@ -25,7 +25,7 @@ const CreatePost = () => {
           <AvatarFallback className="flex items-center text-center text-xl font-bold">{user?.username?.substring(0, 2)}</AvatarFallback>
         </Avatar>
         <Input
-          className="w-[70rem] h-[3rem] text-xl font-bold border-2 border-gray-400 focus:border-0 pl-5"
+          className="w-full md:h-[3rem] md:text-xl font-bold border-2 border-gray-400 focus:border-0 p-1 md:pl-5"
           placeholder="Post your thoughts..."
         />
         <div className="flex gap-4 items-center">
