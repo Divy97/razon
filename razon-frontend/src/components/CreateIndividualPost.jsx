@@ -18,7 +18,7 @@ import { toast } from "react-toastify";
 import { Toaster } from "./ui/toaster";
 import { ChatState } from "@/context/ChatProvider";
 import { SERVER } from "../constants.js";
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 const CreateIndividualPost = () => {
   const { token } = ChatState();
@@ -50,18 +50,12 @@ const CreateIndividualPost = () => {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+
   const handleCreatePost = async () => {
     if (!title) {
-      toast.warn('Fill the details', {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
-        });
+      toast.warn("Fill the details", {
+        /* toast configuration */
+      });
       return;
     }
 
@@ -73,7 +67,7 @@ const CreateIndividualPost = () => {
       data.append("tags", tagsArray);
       data.append("avatar", image);
 
-      console.log("data:", data);
+      console.log("FormData:", data);
 
       const myHeaders = new Headers({
         Authorization: `Bearer ${token}`,
@@ -88,40 +82,40 @@ const CreateIndividualPost = () => {
       const response = await fetch(apiEndpoint, requestOptions);
       const result = await response.json();
 
-      console.log("API Response:", result);
-      if(result.message == "jwt malformed") {
-        toast.warn('Oops, You have to login to post', {
-          position: "top-right",
-          autoClose: 2000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "dark",
-          });
-  
-          setTimeout(() => {
-            navigate('/login');
-          }, 1500);
-          return;
-      }
-      toast.success('Yayy, Posted', {
-        position: "top-right",
-        autoClose: 2000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "dark",
+      console.log("API Response:", response.status, result);
+
+      if (response.ok) {
+        // Handle success
+        toast.success("Yayy, Posted", {
+          /* toast configuration */
         });
         setTimeout(() => {
-          navigate('/');
+          navigate("/");
         }, 1500);
-        return;
+      } else {
+        // Handle error
+        console.error("Error creating post:", result);
+        if (result.message === "jwt malformed") {
+          toast.warn("Oops, You have to login to post", {
+            /* toast configuration */
+          });
+          setTimeout(() => {
+            navigate("/login");
+          }, 1500);
+        } else {
+          // Handle other errors
+          // Display a generic error message or provide more specific details to the user
+          toast.error("Something went wrong while creating a post", {
+            /* toast configuration */
+          });
+        }
+      }
     } catch (error) {
-      console.error("Error creating post:", error);
+      console.error("Unexpected error:", error);
+      // Display a generic error message or provide more specific details to the user
+      toast.error("Something went wrong while creating a post", {
+        /* toast configuration */
+      });
     }
   };
 
@@ -205,17 +199,18 @@ const CreateIndividualPost = () => {
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2 items-center">
-                  {tagsArray && tagsArray?.map((tag, i) => {
-                    return (
-                      <Badge
-                        key={i}
-                        className="flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        <p className="text-md font-mono">{tag}</p>{" "}
-                        <X size={14} onClick={() => handleDelete(tag)} />
-                      </Badge>
-                    );
-                  })}
+                  {tagsArray &&
+                    tagsArray?.map((tag, i) => {
+                      return (
+                        <Badge
+                          key={i}
+                          className="flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          <p className="text-md font-mono">{tag}</p>{" "}
+                          <X size={14} onClick={() => handleDelete(tag)} />
+                        </Badge>
+                      );
+                    })}
                 </div>
                 <DialogFooter>
                   <Button

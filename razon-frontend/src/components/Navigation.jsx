@@ -23,8 +23,8 @@ const Navigation = () => {
   const { user, token } = ChatState();
   const navigate = useNavigate();
   const handleProfile = () => {
-    if (token) {
-      alert("In profile")
+    if(token) {
+      navigate(`/profile/${user.username}`)
     } else {
       toast.warn('Oops, You are not loggedIn, Please login', {
         position: "top-right",
@@ -55,11 +55,10 @@ const Navigation = () => {
         draggable: true,
         progress: undefined,
         theme: "dark",
-      });
-      setTimeout(() => {
-
-        document?.getElementById("gossipID")?.click()
-      }, 100);
+        });
+        setTimeout(() => {
+          document?.getElementById("gossipID")?.click()
+        }, 100);
     } else {
       toast.warn('Oops, Please login for gossiping', {
         position: "top-right",

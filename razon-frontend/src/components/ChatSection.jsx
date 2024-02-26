@@ -25,7 +25,7 @@ import { Button } from "./ui/button";
 
 import { Search, Plus, X } from "lucide-react";
 import { Input } from "./ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import {toast} from 'react-toastify'
 import { ChatState } from "@/context/ChatProvider.jsx";
 import ChatBox from "./ChatBox";
 
@@ -41,13 +41,13 @@ import {
 import { Label } from "@/components/ui/label";
 import { Badge } from "./ui/badge";
 import { SERVER } from "../constants.js";
-
+import {useNavigate} from 'react-router-dom'
 const ChatSection = () => {
   const { user, selectedChat, setSelectedChat, chats, setChats, token } =
     ChatState();
   // ChatState
-  const { toast } = useToast();
 
+  const navigate = useNavigate();
   // fetch again
   const [fetchAgain, setFetchAgain] = useState(false);
   const fetchIndividualChats = () => {
@@ -63,8 +63,8 @@ const ChatSection = () => {
     fetch(`${SERVER}/chat`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        if(result.message == "jwt malformed") {
-          toast.warn('Oops, You have to login to post', {
+        if (result.message == "jwt malformed") {
+          toast.warn("Oops, You have to login to post", {
             position: "top-right",
             autoClose: 2000,
             hideProgressBar: false,
@@ -73,12 +73,12 @@ const ChatSection = () => {
             draggable: true,
             progress: undefined,
             theme: "dark",
-            });
-    
-            setTimeout(() => {
-              navigate('/login');
-            }, 1500);
-            return;
+          });
+
+          setTimeout(() => {
+            navigate("/login");
+          }, 1500);
+          return;
         }
         setChats(result.data);
       })
@@ -101,11 +101,16 @@ const ChatSection = () => {
 
   const handleSearch = () => {
     if (!search) {
-      toast({
-        variant: "destructive",
-        title: "Enter User name to search",
-        description: "",
-      });
+      toast.warn('Oops, Enter UserName to Search', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
     } else {
       try {
         setLoading(true);
@@ -127,11 +132,16 @@ const ChatSection = () => {
           })
           .catch((error) => console.log("error", error));
       } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "Oops!",
-          description: "Failed to load search results",
-        });
+        toast.error('Oops, Something went wrong', {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          });
       }
     }
   };
@@ -167,11 +177,16 @@ const ChatSection = () => {
         })
         .catch((error) => console.log("error", error));
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Oops!",
-        description: "Failed to Create chat, try again later",
-      });
+      toast.error('Oops, Something went wrong', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
     }
   };
 
@@ -193,11 +208,16 @@ const ChatSection = () => {
         })
         .catch((error) => console.log("error", error));
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Oops!",
-        description: "Failed to Create chat, try again later",
-      });
+      toast.error('Oops, Something went wrong', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
     }
   };
 
@@ -245,28 +265,47 @@ const ChatSection = () => {
           })
           .catch((error) => console.log("error", error));
       } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "Oops!",
-          description: "Failed to load search results",
-        });
+        toast.error('Oops, Something went wrong', {
+          position: "top-right",
+          autoClose: 2000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "dark",
+          });
       }
     }
   };
 
   const handleCreateChat = (userToAdd) => {
+    console.log('hey', user?.username === userToAdd.username);
     if (selectedGroupUsers?.includes(userToAdd)) {
-      toast({
-        title: "User already in the group!",
-      });
+      toast.warn('User already in the group', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
       return;
     }
 
-    if (JSON.parse(user).username === userToAdd.username) {
-      toast({
-        title: "You are the group admin",
-        variant: "destructive",
-      });
+    if (user?.username === userToAdd.username) {
+      toast.warn('You are the admin and already part of the group', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
       return;
     }
 
@@ -281,11 +320,16 @@ const ChatSection = () => {
 
   const handleCreateGroup = () => {
     if (!groupChatName || !selectedGroupUsers) {
-      toast({
-        variant: "destructive",
-        title: "Oops!",
-        description: "Please fill all the fields",
-      });
+      toast.warn('Oops, Fill all the details', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
     }
 
     try {
@@ -312,11 +356,16 @@ const ChatSection = () => {
         })
         .catch((error) => console.log("error", error));
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Oops!",
-        description: "Something went wrong",
-      });
+      toast.error('Oops, Something went wrong', {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+        });
     }
   };
 
@@ -330,9 +379,9 @@ const ChatSection = () => {
           <TabsTrigger value="Personal" className="w-[10rem] font-semibold">
             Personal
           </TabsTrigger>
-          <TabsTrigger value="Group" className="w-[10rem] font-semibold">
+          {/* <TabsTrigger value="Group" className="w-[10rem] font-semibold">
             Group
-          </TabsTrigger>
+          </TabsTrigger> */}
         </TabsList>
         <Sheet>
           <SheetTrigger
@@ -412,7 +461,9 @@ const ChatSection = () => {
                           key={result?._id}
                           onClick={() => accessChat(result?._id)}
                         >
-                          <Avatar>
+                          <Avatar className="cursor-pointer" onClick={() => {
+                            navigate(`profile/${result.username}`)
+                          }}>
                             <AvatarImage
                               className="w-[3rem] h-[3rem] p-1"
                               style={{
@@ -578,7 +629,9 @@ const ChatSection = () => {
                         key={result?._id}
                         onClick={() => handleCreateChat(result)}
                       >
-                        <Avatar>
+                        <Avatar onClick={() => {
+                          navigate(`/profile/${result?.username}`)
+                        }} className="cursor-pointer">
                           <AvatarImage
                             className="w-[3rem] h-[3rem] p-1"
                             style={{
@@ -636,15 +689,15 @@ const ChatSection = () => {
                           ? getSender(loggedUser, chat.users)
                               ?.substring(0, 2)
                               .toUpperCase()
-                          : chat.chatName?.substring(0, 2)?.toUpperCase()}{" "}
-                        }
+                          : chat.chatName?.substring(0, 2)?.toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="text-lg font-bold font-mono">
                         {!chat.isGroupChat
                           ? getSender(loggedUser, chat.users)
-                          : chat.chatName}{" "}
+                          : chat?.chatName
+                        }{" "}
                         <p className="text-base font-sans font-medium">
                           {chat?.latestMessage?.content}
                         </p>

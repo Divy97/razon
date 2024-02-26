@@ -8,7 +8,6 @@ import { ChatState } from "@/context/ChatProvider";
 
 const CreatePost = () => {
   const { user } = ChatState();
-
   
   return (
     <NavLink to="/create-post" className="mx-auto">

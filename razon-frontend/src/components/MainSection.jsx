@@ -30,13 +30,16 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SERVER } from "../constants.js";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { calculateTime } from "./utils/calculateTime.js";
 import CreatePost from "./CreatePost.jsx";
 
 import { toast } from "react-toastify";
+import { ChatState } from "@/context/ChatProvider.jsx";
 
 const MainSection = () => {
+  const navigate = useNavigate();
+  const { user } = ChatState();
   const [posts, setPosts] = useState([]);
   useEffect(() => {
     let requestOptions = {
@@ -50,6 +53,10 @@ const MainSection = () => {
       .catch((error) => console.log("error", error));
   }, []);
 
+  const handleProfile = (name) => {
+    navigate(`/profile/${name}`);
+  };
+
   return (
     <div>
       <CreatePost />
@@ -58,7 +65,10 @@ const MainSection = () => {
           <Card key={post._id} className="mb-5 w-[90%] mx-auto h-[auto] p-4 ">
             <div className="flex items-start justify-between px-5 py-2 ">
               <div className="flex items-center justify-around gap-3">
-                <Avatar>
+                <Avatar
+                  onClick={() => handleProfile(post?.user?.username)}
+                  className="cursor-pointer"
+                >
                   <AvatarImage
                     className="w-[3rem] h-[3rem]"
                     style={{
@@ -102,7 +112,7 @@ const MainSection = () => {
                             });
                           }}
                         >
-                          Do Not recommend  
+                          Do Not recommend
                         </p>
                       </MenubarItem>
                       <MenubarSeparator />
@@ -147,7 +157,8 @@ const MainSection = () => {
                   {post.tags.map(
                     (tag, index) =>
                       tag !== "undefined" &&
-                      tag !== "[]" && (
+                      tag !== "[]" && 
+                      tag !== "" &&(
                         <Badge key={index} className="dark:bg-white bg-black">
                           {tag}
                         </Badge>
@@ -160,10 +171,20 @@ const MainSection = () => {
               </CardContent>
               <CardFooter className="flex gap-2 items-center pb-5 m-0">
                 <div className="flex gap-2 items-center justify-center">
-                  <ThumbsUp /> <p>{post.upvotes.length} <span className="hidden md:inline">Upvotes</span></p>
+                  {post?.upvotes?.includes(user?._id) ? (
+                    <ThumbsUp fill="#C13584" />
+                  ) : (
+                    <ThumbsUp />
+                  )}{" "}
+                  <p>{post.upvotes.length} Upvotes</p>
                 </div>
                 <div className="flex gap-2 items-center justify-center">
-                  <ThumbsDown /> <p>{post.downvotes.length} <span className="hidden md:inline">Downvotes</span></p>
+                  {post?.downvotes?.includes(user?._id) ? (
+                    <ThumbsDown fill="#C13584" />
+                  ) : (
+                    <ThumbsDown />
+                  )}
+                  <p>{post.downvotes.length} Downvotes</p>
                 </div>
                 <div className="flex gap-2 items-center justify-center">
                   <MessageSquareQuote /> <p>{post.comments.length} <span className="hidden md:inline">Comments</span></p>

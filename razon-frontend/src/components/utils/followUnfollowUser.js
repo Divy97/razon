@@ -12,7 +12,7 @@ export const follow = (id, storedToken) => {
     `http://localhost:8080/api/v1/users/followUser/${id}`,
     requestOptions
   )
-    .then((response) => response.text())
+    .then((response) => response.json())
     .then((result) => console.log(result))
     .catch((error) => console.log("error", error))
 };
@@ -31,7 +31,7 @@ export const unFollow = (id, storedToken) => {
       `http://localhost:8080/api/v1/users/unFollowUser/${id}`,
       requestOptions
     )
-      .then((response) => response.text())
+      .then((response) => response.json())
       .then((result) => console.log(result))
       .catch((error) => console.log("error", error));
   };
