@@ -60,10 +60,10 @@ const MainSection = () => {
   return (
     <div>
       <CreatePost />
-      <ScrollArea className="h-[78vh] w-[70vw] rounded-md border p-5 mx-auto my-5 text-justify">
+      <ScrollArea className="h-[78vh] w-full md:w-[70vw] rounded-md border p-5 mx-auto my-5 text-justify">
         {posts.map((post) => (
-          <Card key={post._id} className="mb-5 w-[100%] h-[auto] p-4">
-            <div className="flex items-start justify-between px-5 py-2">
+          <Card key={post._id} className="mb-5 w-[90%] mx-auto h-[auto] p-4 ">
+            <div className="flex items-start justify-between px-5 py-2 ">
               <div className="flex items-center justify-around gap-3">
                 <Avatar
                   onClick={() => handleProfile(post?.user?.username)}
@@ -84,7 +84,7 @@ const MainSection = () => {
                 <h1 className="text-xl font-extrabold text-center">
                   {post?.user?.username?.toUpperCase()}
                 </h1>
-                <h1 className="text-xl font-bold text-center">
+                <h1 className="hidden md:inline md:text-xl font-bold text-center">
                   Posted {calculateTime(post?.createdAt)}
                 </h1>
               </div>
@@ -98,7 +98,7 @@ const MainSection = () => {
                       <MenubarItem className="flex gap-5 items-center">
                         <CircleSlash2 />{" "}
                         <p
-                          className="text-lg cursor-pointer"
+                          className="md:text-lg cursor-pointer"
                           onClick={() => {
                             toast.info("You have a good taste, NOTED", {
                               position: "top-right",
@@ -119,7 +119,7 @@ const MainSection = () => {
                       <MenubarItem className="flex gap-5 items-center">
                         <Flag />{" "}
                         <p
-                          className="text-lg cursor-pointer"
+                          className="md:text-lg cursor-pointer"
                           onClick={() => {
                             toast.info("AYE AYE CAPTAIN, REPORTED", {
                               position: "top-right",
@@ -151,7 +151,7 @@ const MainSection = () => {
                   />
                 )}
               </div>
-              <CardHeader className="flex w-100 flex-row items-center max-h-10 gap-2">
+              <CardHeader className="flex w-100 flex-row items-center max-h-10 gap-2 ">
                 <CardTitle>{post.title}</CardTitle>
                 <div className="flex flex-row items-center gap-2 pb-1">
                   {post.tags.map(
@@ -187,7 +187,7 @@ const MainSection = () => {
                   <p>{post.downvotes.length} Downvotes</p>
                 </div>
                 <div className="flex gap-2 items-center justify-center">
-                  <MessageSquareQuote /> <p>{post.comments.length} Comments</p>
+                  <MessageSquareQuote /> <p>{post.comments.length} <span className="hidden md:inline">Comments</span></p>
                 </div>
               </CardFooter>
             </Link>

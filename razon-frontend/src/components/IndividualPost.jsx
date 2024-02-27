@@ -551,14 +551,16 @@ const IndividualPost = () => {
   return (
     <div>
       <Navigation />
-      <ScrollArea className="h-[88vh] rounded-md border p-5 mx-auto my-5 text-justify">
+      <ScrollArea className="h-[88vh] rounded-md border  md:p-5 mx-auto my-5 text-justify">
         {loading ? (
           <div className="w-100 h-[90vh] flex items-center justify-center">
-            <h1 className="text-3xl font-mono font-bold">Loading...</h1>
+            <h1 className="text-xl md:text-3xl font-mono font-bold">Loading...</h1>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2">
-            <div className="h-[6vh] w-[60vw] mt-5 border-2 pl-5 pr-5 rounded flex justify-between items-center">
+
+
+            <div className="h-[6vh] w-[90vw] md:w-[60vw] mt-5 border-2 pl-5 pr-5 rounded flex justify-between items-center">
               <div className="flex gap-2 items-center">
                 <h3 className="text-xl font-bold font-serif">
                   {postDetails?.title}
@@ -579,14 +581,17 @@ const IndividualPost = () => {
               <Link to="/">
                 <Button
                   variant="outline"
-                  className="w-[6rem] p-2 h-[2rem] text-md flex items-center justify-around"
+                  className="md:w-[6rem] p-2 h-[2rem] text-md flex items-center justify-around"
                 >
                   <X size={18} /> <span> Close </span>
                 </Button>
               </Link>
             </div>
-            <div className="h-[auto] w-[60vw] border-2">
-              <div className="h-[2vh] w-[60vw] pt-7 pl-5 pr-5 rounded flex justify-between items-center">
+
+
+
+            <div className="h-[auto] w-[90vw] md:w-[60vw] border-2 ">
+              <div className="h-[2vh] w-[90vw] md:w-[60vw] pt-7 pl-5 pr-5 rounded flex justify-between items-center">
                 <div className="flex items-center justify-around gap-3">
                   <Avatar onClick={() => {
                           navigate(`/profile/${postDetails?.user?.username}`)
@@ -599,7 +604,7 @@ const IndividualPost = () => {
                       }}
                       src={postDetails?.user?.avatar}
                     />
-                    <AvatarFallback className="flex items-center text-center text-xl font-bold">
+                    <AvatarFallback className="flex items-center text-center md:text-xl font-bold">
                       {postDetails?.user?.username
                         ?.substring(0, 2)
                         .toUpperCase()}
@@ -608,37 +613,44 @@ const IndividualPost = () => {
                   <h1 className="text-xl font-extrabold text-center">
                     {postDetails?.user?.username?.toUpperCase()}
                   </h1>
-                  <h1 className="text-xl font-bold text-center">
+                  <h1 className="hidden sm:inline md:text-xl font-bold text-center">
                     Posted {calculateTime(postDetails?.createdAt)}
                   </h1>
                 </div>
+
+                <div>
+
                 {postDetails?.user?.followers.includes(user?._id) ? (
                   <UserMinus
-                    className="cursor-pointer"
-                    onClick={() => {
-                      unFollow(postDetails?.user?._id);
-                    }}
+                  className="cursor-pointer "
+                  onClick={() => {
+                    unFollow(postDetails?.user?._id);
+                  }}
                   />
-                ) : (
-                  <UserPlus
-                    className="cursor-pointer"
+                  ) : (
+                    <UserPlus
+                    className="cursor-pointer "
                     onClick={() => {
                       follow(postDetails?.user?._id);
                     }}
-                  />
-                )}
+                    />
+                    )}
+                    </div>
               </div>
               <div className="mt-7">
-                <h3 className="text-3xl font-bold font-serif p-16 pb-0 pt-0">
+                <h3 className="text-xl md:text-3xl font-bold font-serif p-16 pb-0 pt-0">
                   {postDetails?.title}
                 </h3>
+                <div className="">
+
                 {postDetails?.image && (
                   <img
-                    src={postDetails?.image}
-                    alt="postImage"
-                    className="mx-auto w-[35rem] h-[25rem] object-fit rounded"
+                  src={postDetails?.image}
+                  alt="postImage"
+                  className="p-8 mx-auto md:h-[25rem] object-fit rounded"
                   />
-                )}
+                  )}
+                  </div>
                 {postDetails?.content && (
                   <h1 className="p-16 pt-3 text-justify text-lg font-bold font-sans">
                     {postDetails?.content}
@@ -654,7 +666,7 @@ const IndividualPost = () => {
                     ) : (
                       <ThumbsUp />
                     )}
-                    <p>{postDetails?.upvotes?.length} Upvotes</p>
+                    <p>{postDetails?.upvotes?.length} <span className="hidden md:inline">Upvotes</span></p>
                   </div>
                   <div
                     className="cursor-pointer flex gap-2 items-center justify-center"
@@ -666,7 +678,7 @@ const IndividualPost = () => {
                       <ThumbsDown />
                     )}
 
-                    <p>{postDetails?.downvotes?.length} Downvotes</p>
+                    <p>{postDetails?.downvotes?.length} <span className="hidden md:inline">Downvotes</span></p>
                   </div>
                   <div
                     className="cursor-pointer flex gap-2 items-center justify-center"
@@ -674,9 +686,9 @@ const IndividualPost = () => {
                   >
                     <MessageSquareQuote />
                     
-                    <p>{postDetails?.comments?.length} Comments</p>
+                    <p>{postDetails?.comments?.length} <span className="hidden md:inline">Comments</span></p>
                   </div>
-                  <div className="cursor-pointer flex gap-2 items-center justify-center"
+                  <div className="cursor-pointer flex gap-2 items-center justify-center "
                    onClick={() => {
                     toast.info("AYE AYE CAPTAIN, REPORTED", {
                       position: "top-right",
@@ -690,13 +702,13 @@ const IndividualPost = () => {
                     });
                     }}
                   >
-                    <Flag /> Report
+                    <Flag /> <span className="hidden md:inline">Report</span>
                   </div>
                 </div>
               </div>
               <div>
                 {commentBox ? (
-                  <div className="pt-2 pb-5 p-16">
+                  <div className="md:pt-2 md:pb-5 md:p-16 pl-16 ">
                     <Textarea
                       className="border-2 border-white font-mono font-md font-bold focus:border-0"
                       placeholder="Type your message here."
@@ -709,7 +721,7 @@ const IndividualPost = () => {
                         variant="outline"
                         onClick={createComment}
                       >
-                        Comment
+                        <span className="hidden md:inline">Comment</span>
                       </Button>
                     </div>
                   </div>
@@ -717,8 +729,8 @@ const IndividualPost = () => {
                   <></>
                 )}
               </div>
-              {postDetails?.comments?.length > 0 ? <h1 className="text-2xl font-bold pt-2 pb-2 p-16">Comments</h1> : <h1 className="text-2xl font-bold pt-2 pb-2 p-16">Write a Comment</h1>}
-              <div className="pt-2 p-16">
+              {postDetails?.comments?.length > 0 ? <h1 className="text-xl md:text-2xl font-bold pt-2 pb-2 p-16">Comments</h1> : <h1 className="text-xl md:text-2xl font-bold pt-2 pb-2 p-16">Write a Comment</h1>}
+              <div className="md:pt-2 md:p-16 pl-8">
                 {postComments?.map((comment) => (
                   <div key={comment?._id}>
                     <div className="flex items-center gap-4">
@@ -733,7 +745,7 @@ const IndividualPost = () => {
                           }}
                           src={comment?.user?.avatar}
                         />
-                        <AvatarFallback className="flex items-center text-center text-xl font-bold">
+                        <AvatarFallback className="flex items-center text-center  md:text-xl font-bold">
                           {comment?.user?.username
                             ?.substring(0, 2)
                             .toUpperCase()}
@@ -742,11 +754,11 @@ const IndividualPost = () => {
                       <h1 className="text-lg font-extrabold text-center">
                         {comment?.user?.username?.toUpperCase()}
                       </h1>
-                      <h1 className="text-lg font-bold text-center">
+                      <h1 className="hidden sm:inline md:text-lg font-bold text-center">
                         Posted {calculateTime(comment?.createdAt)}
                       </h1>
                     </div>
-                    <h1 className="text-xl font-bold font-mono pt-1 pb-3 p-14">
+                    <h1 className="md:text-xl font-bold font-mono pt-1 pb-3 p-14">
                       {comment?.content}
                     </h1>
                     <div className="flex pt-0 pb-5 p-14 gap-3">
@@ -759,7 +771,7 @@ const IndividualPost = () => {
                         ) : (
                           <ThumbsUp />
                         )}
-                        <p>{comment?.upvotes?.length} Upvotes</p>
+                        <p>{comment?.upvotes?.length} <span className="hidden md:inline">Upvotes</span></p>
                       </div>
                       <div
                         className="cursor-pointer flex gap-2 items-center justify-center"
@@ -771,17 +783,17 @@ const IndividualPost = () => {
                           <ThumbsDown />
                         )}
 
-                        <p>{comment?.downvotes?.length} Downvotes</p>
+                        <p>{comment?.downvotes?.length} <span className="hidden md:inline">Downvotes</span></p>
                       </div>
                       <div
                         className="cursor-pointer flex gap-2 items-center justify-center"
                         onClick={() => commentReplyBoxHandler(comment?._id)}
                       >
                         <MessageSquareQuote />
-                        <p>{comment?.replies?.length} Replies</p>
+                        <p>{comment?.replies?.length} <span className="hidden md:inline">Replies</span></p>
                       </div>
                       <div className="cursor-pointer flex gap-2 items-center justify-center">
-                        <Flag /> Report
+                        <Flag /> <span className="hidden md:inline">Report</span>
                       </div>
                     </div>
                     {replyCommentBox && comment?._id === replyBoxId ? (
@@ -794,7 +806,7 @@ const IndividualPost = () => {
                         />
                         <div className="flex items-center justify-end">
                           <Button
-                            className="mt-2 text-lg border-2 border-white"
+                            className="mt-2 md:text-lg border-2 border-white"
                             variant="outline"
                             onClick={() => createReply(comment?._id)}
                           >
@@ -818,17 +830,17 @@ const IndividualPost = () => {
                                       }}
                                       src={reply?.user?.avatar}
                                     />
-                                    <AvatarFallback className="flex items-center text-center text-xl font-bold">
+                                    <AvatarFallback className="flex items-center text-center md:text-xl font-bold">
                                       {reply?.user?.username
                                         ?.substring(0, 2)
                                         .toUpperCase()}
                                     </AvatarFallback>
                                   </Avatar>
                                   <div className="flex gap-2 items-center mt-[-0.5rem]">
-                                    <h1 className="text-lg font-extrabold text-center">
+                                    <h1 className="md:text-lg font-extrabold text-center">
                                       {reply?.user?.username?.toUpperCase()}
                                     </h1>
-                                    <h1 className="text-lg font-bold text-center">
+                                    <h1 className="hidden sm:inline md:text-lg md:font-bold text-center">
                                       Posted {calculateTime(reply?.createdAt)}
                                     </h1>
                                   </div>
@@ -847,7 +859,7 @@ const IndividualPost = () => {
                                   ) : (
                                     <ThumbsUp />
                                   )}
-                                  <p>{reply?.upvotes?.length} Upvotes</p>
+                                  <p>{reply?.upvotes?.length} <span className="hidden md:inline">Upvotes</span></p>
                                 </div>
                                 <div
                                   className="cursor-pointer flex gap-2 items-center justify-center"
@@ -859,10 +871,10 @@ const IndividualPost = () => {
                                     <ThumbsDown />
                                   )}
 
-                                  <p>{reply?.downvotes?.length} Downvotes</p>
+                                  <p>{reply?.downvotes?.length} <span className="hidden md:inline">Downvotes</span></p>
                                 </div>
                                 <div className="cursor-pointer flex gap-2 items-center justify-center">
-                                  <Flag /> Report
+                                  <Flag /> <span className="hidden md:inline">Report</span>
                                 </div>
                               </div>
                             </>
