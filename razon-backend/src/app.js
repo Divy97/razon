@@ -2,13 +2,27 @@ import dotenv from "dotenv";
 import connectDB from "./db/index.js";
 import app from "./index.js";
 import { Server } from "socket.io";
-
+import  https from 'https';
+import fs from 'fs'
+import { fileURLToPath } from 'url';
+import path from "path"
+console.log("Environment variables loaded:", process.env.PORT); 
 dotenv.config({
   path: "./.env",
 });
-
 connectDB();
-const server = app.listen(process.env.PORT, () => {
+console.log("Certificate files loaded successfully"); // Check if this logs
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const options={
+  key:fs.readFileSync(path.join(__dirname,'./server.key')),
+  cert:fs.readFileSync(path.join(__dirname,'./server.crt'))    
+}
+console.log("Certificate files loaded successfully"); // Check if this logs
+
+const httpsServer = https.createServer(options, app);
+const server = httpsServer.listen(9910, () => {
   console.log("Server Running at port: ", process.env.PORT);
 });
 
