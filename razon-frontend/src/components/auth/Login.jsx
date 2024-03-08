@@ -30,7 +30,7 @@ const Login = () => {
       redirect: "follow",
     };
 
-    fetch("http://localhost:8080/api/v1/users/login", requestOptions)
+    fetch("http://16.16.82.71:9000/api/v1/users/login", requestOptions)
       .then((response) => response.json())
       .then((result) => {
         console.log(result);

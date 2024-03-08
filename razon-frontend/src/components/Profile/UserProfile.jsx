@@ -48,7 +48,7 @@ const UserProfile = () => {
       redirect: "follow",
     };
 
-    fetch(`http://localhost:8080/api/v1/users/followUser/${id}`, requestOptions)
+    fetch(`http://16.16.82.71:9000/api/v1/users/followUser/${id}`, requestOptions)
       .then((response) => response.json())
       .then((result) => {
         if (result.success) {
@@ -80,7 +80,7 @@ const UserProfile = () => {
     };
 
     fetch(
-      `http://localhost:8080/api/v1/users/unFollowUser/${id}`,
+      `http://16.16.82.71:9000/api/v1/users/unFollowUser/${id}`,
       requestOptions
     )
       .then((response) => response.json())

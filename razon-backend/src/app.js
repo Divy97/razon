@@ -1,25 +1,53 @@
-import express from "express";
-import cors from "cors";
-import cookieParser from "cookie-parser";
-import multer from "multer";
+import dotenv from "dotenv";
+import connectDB from "./db/index.js";
+import app from "./index.js";
+import { Server } from "socket.io";
 
-const app = express();
+dotenv.config({
+  path: "./.env",
+});
 
-app.use(cors());
-app.use(express.json({ limit: "16kb" }));
-app.use(express.urlencoded({ extended: true, limit: "16kb" }));
-app.use(cookieParser());
-app.use(express.static("public"));
+connectDB();
+const server = app.listen(process.env.PORT, () => {
+  console.log("Server Running at port: ", process.env.PORT);
+});
 
-// routes
-import userRouter from "./routes/user.routes.js";
-import postRouter from "./routes/post.routes.js";
-import chatRouter from "./routes/chat.routes.js";
-import messageRouter from "./routes/message.routes.js";
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
-app.use("/api/v1/users", userRouter);
-app.use("/api/v1/posts", postRouter);
-app.use("/api/v1/chat", chatRouter);
-app.use("/api/v1/message", messageRouter);
+io.on("connection", (socket) => {
+  socket.on("setup", (userData) => {
+    socket.join(userData?._id);
+    console.log(userData?._id);
+    socket.emit("connected");
+  });
 
-export default app;
+  socket.on("join chat", (roomId) => {
+    socket.join(roomId);
+    console.log("User joined room ", roomId);
+  });
+
+  socket.on("new message", (newMessageReceived) => {
+    let chat = newMessageReceived.chat;
+    if (!chat.users) {
+      console.log("User not defined");
+      return;
+    }
+
+    chat.users.forEach((user) => {
+      if (user?._id == newMessageReceived.sender._id) return;
+      socket.in(user._id).emit("message received", newMessageReceived);
+    });
+  });
+
+  socket.on("typing", (room) => socket.in(room).emit("typing"));
+  socket.on("stop typing", (room) => socket.in(room).emit("stop typing"));
+
+  // socket.off("setup", () => {
+  //   console. log("USER DISCONNECTED");
+  //   socket.leave(userData?._id);
+  // });
+});

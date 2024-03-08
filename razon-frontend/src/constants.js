@@ -1,1 +1,1 @@
-export const SERVER = 'http://localhost:8080/api/v1'
+export const SERVER = 'http://16.16.82.71:9000/api/v1'

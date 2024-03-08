@@ -31,7 +31,7 @@ const AuthPage = () => {
       redirect: "follow",
     };
 
-    fetch("http://localhost:8080/api/v1/users/register", requestOptions)
+    fetch("http://16.16.82.71:9000/api/v1/users/register", requestOptions)
       .then((response) => response.json())
       .then((result) => {
         console.log(result);
