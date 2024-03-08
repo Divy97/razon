@@ -22,7 +22,7 @@ const options={
 console.log("Certificate files loaded successfully"); // Check if this logs
 
 const httpsServer = https.createServer(options, app);
-const server = httpsServer.listen(9910, () => {
+const server = httpsServer.listen(9000, () => {
   console.log("Server Running at port: ", process.env.PORT);
 });
 
