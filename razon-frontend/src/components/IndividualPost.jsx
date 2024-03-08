@@ -105,7 +105,7 @@ const IndividualPost = () => {
       .then((response) => response.json())
       .then((result) => {
         console.log(result);
-        if(result.message == "jwt malformed") {
+        if(result.message == "jwt malformed" || result.message == "jwt expired") {
           toast.warn('Oops, You have to login to Like', {
             position: "top-right",
             autoClose: 2000,
@@ -124,7 +124,9 @@ const IndividualPost = () => {
         }
         fetchPostDetailsAgain();
       })
-      .catch((error) => console.log("error", error));
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   const unLikePost = (id) => {
@@ -548,6 +550,7 @@ const IndividualPost = () => {
     fetchData();
   }, []);
 
+  console.log(postDetails?.upvotes?.includes(user?._id), user?._id);
   return (
     <div>
       <Navigation />
