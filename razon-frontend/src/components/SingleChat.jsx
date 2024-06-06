@@ -23,7 +23,7 @@ import ScrollableChat from "./ScrollableChat";
 import io from "socket.io-client";
 import {SERVER} from "../constants.js";
 
-const ENDPOINT = "http://16.16.82.71:9000";
+const ENDPOINT = "https://localhost:9000";
 let socket, selectedChatCompare;
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const { user, selectedChat, setSelectedChat, token } = ChatState();

@@ -9,7 +9,7 @@ export const follow = (id, storedToken) => {
   };
 
   fetch(
-    `http://16.16.82.71:9000/api/v1/users/followUser/${id}`,
+    `https://localhost:9000/api/v1/users/followUser/${id}`,
     requestOptions
   )
     .then((response) => response.json())
@@ -28,7 +28,7 @@ export const unFollow = (id, storedToken) => {
     };
   
     fetch(
-      `http://16.16.82.71:9000/api/v1/users/unFollowUser/${id}`,
+      `https://localhost:9000/api/v1/users/unFollowUser/${id}`,
       requestOptions
     )
       .then((response) => response.json())

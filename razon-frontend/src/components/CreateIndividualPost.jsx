@@ -3,7 +3,7 @@ import Navigation from "./Navigation";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -22,26 +22,26 @@ import { useNavigate } from "react-router-dom";
 
 const CreateIndividualPost = () => {
   const { token } = ChatState();
-
   const navigate = useNavigate();
+
   const [file, setFile] = useState(null);
   const [image, setImage] = useState(null);
+  const [photos, setPhotos] = useState([]);
+  const [keyword, setKeyword] = useState("");
 
-  function handleChange(e) {
+  const handleChange = (e) => {
     setImage(e.target.files[0]);
     setFile(URL.createObjectURL(e.target.files[0]));
-  }
+  };
 
   const [tag, setTag] = useState("");
   const [tagsArray, setTagsArray] = useState([]);
   const addTag = (e) => {
-    if (e.key == "Enter" && tag) {
+    if (e.key === "Enter" && tag) {
       setTagsArray([...tagsArray, tag]);
       setTag("");
     }
   };
-
-  console.log(tagsArray);
 
   const handleDelete = (tag) => {
     let newTagsArrays = tagsArray?.filter((t) => tag !== t);
@@ -64,10 +64,18 @@ const CreateIndividualPost = () => {
       const data = new FormData();
       data.append("title", title);
       data.append("content", content);
-      data.append("tags", tagsArray);
-      data.append("avatar", image);
+      tagsArray.forEach((tag) => data.append("tags[]", tag));
 
-      console.log("FormData:", data);
+      if (image) {
+        data.append("avatar", image);
+      } else if (file) {
+        const response = await fetch(file);
+        const blob = await response.blob();
+        const unsplashImage = new File([blob], "unsplash-image.jpg", {
+          type: blob.type,
+        });
+        data.append("avatar", unsplashImage);
+      }
 
       const myHeaders = new Headers({
         Authorization: `Bearer ${token}`,
@@ -82,10 +90,7 @@ const CreateIndividualPost = () => {
       const response = await fetch(apiEndpoint, requestOptions);
       const result = await response.json();
 
-      console.log("API Response:", response.status, result);
-
       if (response.ok) {
-        // Handle success
         toast.success("Yayy, Posted", {
           /* toast configuration */
         });
@@ -93,7 +98,6 @@ const CreateIndividualPost = () => {
           navigate("/");
         }, 1500);
       } else {
-        // Handle error
         console.error("Error creating post:", result);
         if (result.message === "jwt malformed") {
           toast.warn("Oops, You have to login to post", {
@@ -103,8 +107,6 @@ const CreateIndividualPost = () => {
             navigate("/login");
           }, 1500);
         } else {
-          // Handle other errors
-          // Display a generic error message or provide more specific details to the user
           toast.error("Something went wrong while creating a post", {
             /* toast configuration */
           });
@@ -112,27 +114,53 @@ const CreateIndividualPost = () => {
       }
     } catch (error) {
       console.error("Unexpected error:", error);
-      // Display a generic error message or provide more specific details to the user
       toast.error("Something went wrong while creating a post", {
         /* toast configuration */
       });
     }
   };
 
-  console.log(title);
+  const fetchDogPhotos = async (keyword) => {
+    const UNSPLASH_ACCESS_KEY = "zdUpu6J1Oeva0HAPlvrka2ibR70JetL8AUsSFRjD2t8"; // Replace with your actual Unsplash Access Key
+    const apiEndpoint = `https://api.unsplash.com/search/photos?query=${keyword}&client_id=${UNSPLASH_ACCESS_KEY}`;
+
+    try {
+      const response = await fetch(apiEndpoint);
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+      const data = await response.json();
+      const slicedPhotos = data.results.slice(0, 3);
+      setPhotos(slicedPhotos);
+    } catch (error) {
+      console.error("Failed to fetch photos from Unsplash:", error);
+      setPhotos([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchDogPhotos();
+  }, []);
+
+  const selectImage = (url) => {
+    setFile(url); // Set the selected image URL
+    setImage(null); // Reset local file input
+  };
 
   return (
     <div>
       <Toaster />
       <Navigation />
-      <div className="border-2 sm:w-[60vw] h-[auto] mx-auto w-[90vw] mt-10 mb-5 flex flex-col p-5 ">
+      <div className="border-2 sm:w-[60vw] h-[auto] mx-auto w-[90vw] mt-10 mb-5 flex flex-col p-5">
         <div className="flex mt-5">
-          <h1 className=" text-2xl md:text-4xl font-mono font-extrabold">Create a Post</h1>
+          <h1 className="text-2xl md:text-4xl font-mono font-extrabold">
+            Create a Post
+          </h1>
         </div>
         <Separator className="my-2 border-2" />
         <Input
           placeholder="Type a title...."
-          className="md:h-[3rem] md:text-2xl font-extrabold  mt-6 pl-5 border-spacing-3 border-black dark:border-white focus:border-0"
+          className="md:h-[3rem] md:text-2xl font-extrabold mt-6 pl-5 border-spacing-3 border-black dark:border-white focus:border-0"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
@@ -145,7 +173,9 @@ const CreateIndividualPost = () => {
 
         <div className="mt-5">
           <div className="flex items-center w-100 gap-6">
-            <h1 className="md:text-3xl font-mono font-extrabold w-full md:w-auto">Upload Image</h1>
+            <h1 className="md:text-3xl font-mono font-extrabold w-full md:w-auto">
+              Upload Image
+            </h1>
             <label
               htmlFor="fileInput"
               className="border-2 w-[10rem] text-center p-1 md:text-xl font-bold rounded cursor-pointer"
@@ -168,8 +198,44 @@ const CreateIndividualPost = () => {
               />
             )}
           </div>
+          <div className="flex items-center w-100 gap-6 mt-5">
+            <h1 className="md:text-3xl font-mono font-extrabold w-full md:w-auto">
+              OR
+            </h1>
+          </div>
+          <div className="mt-5">
+            <Input
+              placeholder="Enter keyword to search images..."
+              className="md:h-[3rem] md:text-2xl font-extrabold pl-5 border-spacing-3 border-black dark:border-white focus:border-0"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+            />
+            <Button
+              className="mt-4 w-full md:w-[10rem] md:text-xl font-bold rounded-lg"
+              onClick={() => fetchDogPhotos(keyword)}
+            >
+              Search Images
+            </Button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+              {photos.map((photo) => (
+                <div
+                  key={photo.id}
+                  className="cursor-pointer aspect-w-1 aspect-h-1"
+                  onClick={() => selectImage(photo.urls.small)}
+                >
+                  <img
+                    src={photo.urls.small}
+                    alt={photo.alt_description}
+                    className="object-cover w-[500px] h-[300px] rounded"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
           <div className="flex items-center w-100 gap-24 mt-5">
-            <h1 className="md:text-3xl font-mono md:font-extrabold w-full md:w-auto">Add tags</h1>
+            <h1 className="md:text-3xl font-mono md:font-extrabold w-full md:w-auto">
+              Add tags
+            </h1>
             <Dialog>
               <DialogTrigger asChild>
                 <Button
@@ -200,17 +266,15 @@ const CreateIndividualPost = () => {
                 </div>
                 <div className="flex flex-wrap gap-2 items-center">
                   {tagsArray &&
-                    tagsArray?.map((tag, i) => {
-                      return (
-                        <Badge
-                          key={i}
-                          className="flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <p className="text-md font-mono">{tag}</p>{" "}
-                          <X size={14} onClick={() => handleDelete(tag)} />
-                        </Badge>
-                      );
-                    })}
+                    tagsArray?.map((tag, i) => (
+                      <Badge
+                        key={i}
+                        className="flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <p className="text-md font-mono">{tag}</p>
+                        <X size={14} onClick={() => handleDelete(tag)} />
+                      </Badge>
+                    ))}
                 </div>
                 <DialogFooter>
                   <Button
@@ -219,7 +283,6 @@ const CreateIndividualPost = () => {
                       document?.getElementById("dialogClose")?.click();
                     }}
                     className="w-[6rem] text-lg font-bold rounded-lg"
-                    // variant={"md"}
                     size={"sm"}
                   >
                     Done
@@ -230,9 +293,8 @@ const CreateIndividualPost = () => {
           </div>
           <div className="flex mt-2 justify-end">
             <Button
-            
               className="w-[5rem] md:w-[10rem] md:text-xl font-bold rounded-lg"
-              onClick={() => handleCreatePost()}
+              onClick={handleCreatePost}
             >
               Post
             </Button>

@@ -19,6 +19,9 @@ import { ChatState } from "@/context/ChatProvider";
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
 import { useState } from "react";
+
+import { useSearch } from '../context/SearchProvider';
+
 const Navigation = () => {
   const { user, token } = ChatState();
   const navigate = useNavigate();
@@ -82,6 +85,14 @@ const Navigation = () => {
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+
+  const { setSearchQuery } = useSearch();
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+
   return (
     <NavigationMenu className="max-w-100 flex items-center justify-around max-h-20 p-3">
       <NavigationMenuList>
@@ -121,7 +132,7 @@ const Navigation = () => {
           </NavigationMenuItem>
         </NavigationMenuList>
         <NavigationMenuList>
-          <Input placeholder="search..." className="pr-20" />
+          <Input placeholder="search..." className="pr-20"  onChange={handleSearchChange} />
         </NavigationMenuList>
         <NavigationMenuItem className="flex items-center gap-5">
           <ModeToggle />

@@ -17,6 +17,11 @@ import postRouter from "./routes/post.routes.js";
 import chatRouter from "./routes/chat.routes.js";
 import messageRouter from "./routes/message.routes.js";
 
+// app.get("/hello", (req, res) => {
+//     res.json({
+//         message: "Hello"
+//     })
+// })
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/posts", postRouter);
 app.use("/api/v1/chat", chatRouter);

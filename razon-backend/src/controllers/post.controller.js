@@ -586,6 +586,28 @@ const getPostByUsername = asyncHandler(async (req, res) => {
   }
 });
 
+const getPostByTitle = asyncHandler(async (req, res) => {
+  try {
+    const { title } = req.params;
+    const post = await Post.findOne({ title }).populate("user");
+
+    if (!post) {
+      return res
+        .status(404)
+        .json(new ApiResponse(404, null, "Post not found"));
+    }
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, post, `Post titled '${title}' retrieved successfully`));
+  } catch (error) {
+    res
+      .status(error.statusCode || 500)
+      .json(new ApiResponse(error.statusCode || 500, null, error.message));
+  }
+});
+
+
 const getPostDetails = asyncHandler(async (req, res) => {
   try {
     const { postId } = req.params;
@@ -704,6 +726,8 @@ const deletePost = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, null, "Post deleted successfully"));
 });
 
+
+
 export {
   createPost,
   upvote,
@@ -718,6 +742,7 @@ export {
   upvoteNestedReply,
   downvoteNestedReply,
   getPostByUsername,
+  getPostByTitle,
   getPostDetails,
   getPosts,
   deletePost,

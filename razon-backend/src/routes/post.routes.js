@@ -36,6 +36,7 @@ router.route("/create-post").post(
   ]),
   createPost
 );
+
 router.route("/delete-post").post(verifyJwt, deletePost);
 router.route("/upvote").post(verifyJwt, upvote);
 router.route("/downvote").post(verifyJwt, downvote);

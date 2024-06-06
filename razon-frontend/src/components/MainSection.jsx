@@ -36,10 +36,13 @@ import CreatePost from "./CreatePost.jsx";
 
 import { toast } from "react-toastify";
 import { ChatState } from "@/context/ChatProvider.jsx";
+import { useSearch } from "../context/SearchProvider.jsx";
 
 const MainSection = () => {
   const navigate = useNavigate();
   const { user } = ChatState();
+  const { searchQuery } = useSearch();
+
   const [posts, setPosts] = useState([]);
   useEffect(() => {
     let requestOptions = {
@@ -57,11 +60,17 @@ const MainSection = () => {
     navigate(`/profile/${name}`);
   };
 
+  const filteredPosts = searchQuery
+    ? posts.filter((post) =>
+        post.title.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : posts;
+
   return (
     <div>
       <CreatePost />
       <ScrollArea className="h-[78vh] w-full md:w-[70vw] rounded-md border p-5 mx-auto my-5 text-justify">
-        {posts.map((post) => (
+        {filteredPosts.map((post) => (
           <Card key={post._id} className="mb-5 w-[90%] mx-auto h-[auto] p-4 ">
             <div className="flex items-start justify-between px-5 py-2 ">
               <div className="flex items-center justify-around gap-3">
@@ -157,8 +166,8 @@ const MainSection = () => {
                   {post.tags.map(
                     (tag, index) =>
                       tag !== "undefined" &&
-                      tag !== "[]" && 
-                      tag !== "" &&(
+                      tag !== "[]" &&
+                      tag !== "" && (
                         <Badge key={index} className="dark:bg-white bg-black">
                           {tag}
                         </Badge>
@@ -187,7 +196,11 @@ const MainSection = () => {
                   <p>{post.downvotes.length} Downvotes</p>
                 </div>
                 <div className="flex gap-2 items-center justify-center">
-                  <MessageSquareQuote /> <p>{post.comments.length} <span className="hidden md:inline">Comments</span></p>
+                  <MessageSquareQuote />{" "}
+                  <p>
+                    {post.comments.length}{" "}
+                    <span className="hidden md:inline">Comments</span>
+                  </p>
                 </div>
               </CardFooter>
             </Link>

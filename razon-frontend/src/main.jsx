@@ -14,6 +14,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Login from "./components/auth/Login.jsx";
 import UserProfile from "./components/Profile/UserProfile.jsx";
+import { SearchProvider } from "./context/SearchProvider";
 
 const router = createBrowserRouter([
   {
@@ -44,8 +45,9 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <ChatProvider>
-    <React.StrictMode>
+  <SearchProvider>
+    <ChatProvider>
+      <React.StrictMode>
         <ToastContainer
           position="top-right"
           autoClose={2000}
@@ -59,9 +61,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           theme="dark"
           transition:Bounce
         />
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <RouterProvider router={router} />
-      </ThemeProvider>
-    </React.StrictMode>
-  </ChatProvider>
+        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+          <RouterProvider router={router} />
+        </ThemeProvider>
+      </React.StrictMode>
+    </ChatProvider>
+  </SearchProvider>
 );
